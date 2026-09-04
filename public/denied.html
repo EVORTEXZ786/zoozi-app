@@ -4,60 +4,164 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Access Denied — zoozi.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #0a0814;
+    --card: #110e1f;
+    --text: #ffffff;
+    --dim: #6b6880;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --border: rgba(59, 130, 246, 0.15);
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Inter', system-ui, sans-serif;
-    background: #0a0814;
-    color: #fff;
+    background: var(--bg);
+    color: var(--text);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
   }
+
+  /* Animated background */
+  .bg-glow {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .bg-glow::before {
+    content: '';
+    position: absolute;
+    top: -30%; left: -20%;
+    width: 60%; height: 80%;
+    background: radial-gradient(ellipse, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
+    animation: drift1 25s ease-in-out infinite;
+  }
+  .bg-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -20%; right: -10%;
+    width: 50%; height: 70%;
+    background: radial-gradient(ellipse, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+    animation: drift2 30s ease-in-out infinite reverse;
+  }
+  @keyframes drift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5%, 3%) scale(1.1); }
+  }
+  @keyframes drift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-4%, -2%) scale(1.08); }
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
   .denied {
     text-align: center;
-    padding: 40px;
+    padding: 48px 40px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.5s ease;
+    max-width: 440px;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   .denied-icon {
-    font-size: 64px;
-    margin-bottom: 20px;
-    opacity: 0.6;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+    animation: iconPulse 2s ease infinite;
+  }
+  @keyframes iconPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.15); }
+    50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
   }
   .denied h1 {
     font-size: 28px;
     font-weight: 800;
     margin-bottom: 12px;
-    color: #ef4444;
+    letter-spacing: 1px;
+  }
+  .denied h1 span {
+    color: var(--red);
   }
   .denied p {
-    font-size: 14px;
-    color: #8a879e;
-    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--dim);
+    margin-bottom: 28px;
+    line-height: 1.7;
   }
   .denied a {
-    display: inline-block;
-    padding: 12px 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 32px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #ef4444, #3b82f6);
+    background: linear-gradient(135deg, var(--red), var(--blue));
     color: #fff;
     text-decoration: none;
     font-size: 14px;
     font-weight: 700;
-    transition: all 0.2s;
+    transition: all 0.25s;
+    font-family: inherit;
   }
   .denied a:hover {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 24px rgba(59, 130, 246, 0.4);
     transform: translateY(-2px);
   }
+  .denied a:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
-  <div class="denied">
-    <div class="denied-icon">&#128274;</div>
-    <h1>Access Denied</h1>
-    <p>You need a valid token to access this page.<br>Contact the administrator for access.</p>
-    <a href="/">Back to zoozi.app</a>
-  </div>
+
+<div class="bg-glow" id="bg-glow"></div>
+
+<div class="denied">
+  <div class="denied-icon">&#128274;</div>
+  <h1><span>Access Denied</span></h1>
+  <p>You need a valid token to access this page.<br>Contact the administrator for access.</p>
+  <a href="/">&#8592; Back to zoozi.app</a>
+</div>
+
+<script>
+const bg = document.getElementById('bg-glow');
+for (let i = 0; i < 40; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.left = Math.random() * 100 + '%';
+  s.style.top = Math.random() * 100 + '%';
+  s.style.animationDelay = (Math.random() * 5) + 's';
+  s.style.animationDuration = (2 + Math.random() * 4) + 's';
+  s.style.width = s.style.height = (1 + Math.random() * 2) + 'px';
+  bg.appendChild(s);
+}
+</script>
 </body>
 </html>
