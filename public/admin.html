@@ -3,204 +3,357 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Auction Admin Panel</title>
+<title>Admin Panel — zoozi.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --accent: #ef4444;
-    --accent-secondary: #3b82f6;
-    --text: #e4e4e7;
-    --text-dim: #71717a;
-    --bg: #0c0a14;
-    --bg-card: #16102a;
-    --bg-input: #1e1440;
-    --border: rgba(59, 130, 246, 0.25);
-    --border-hover: rgba(59, 130, 246, 0.5);
-    --radius: 12px;
-    --success: #22c55e;
-    --danger: #ef4444;
-    --warning: #f59e0b;
+    --accent2: #3b82f6;
+    --text: #f0f0f5;
+    --dim: #6b6880;
+    --bg: #08060f;
+    --card: #110e1f;
+    --card-hover: #16122a;
+    --input: #1a1530;
+    --border: rgba(59, 130, 246, 0.15);
+    --border-hover: rgba(59, 130, 246, 0.4);
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --radius: 16px;
+    --radius-sm: 10px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
+    font-family: 'Inter', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    padding: 24px;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
-  .page-header {
+  /* ===== ANIMATED BACKGROUND ===== */
+  .bg-glow {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .bg-glow::before {
+    content: '';
+    position: absolute;
+    top: -30%; left: -20%;
+    width: 60%; height: 80%;
+    background: radial-gradient(ellipse, rgba(239, 68, 68, 0.06) 0%, transparent 70%);
+    animation: bgDrift 25s ease-in-out infinite;
+  }
+  .bg-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -20%; right: -10%;
+    width: 50%; height: 70%;
+    background: radial-gradient(ellipse, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+    animation: bgDrift 30s ease-in-out infinite reverse;
+  }
+  @keyframes bgDrift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5%, 3%) scale(1.1); }
+  }
+
+  /* ===== LAYOUT ===== */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 24px;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
+    animation: fadeSlideDown 0.5s ease;
   }
-  .page-header h1 {
-    font-size: 22px;
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-logo {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  .header h1 {
+    font-size: 20px;
     font-weight: 800;
-    letter-spacing: 2px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .page-header .overlay-link {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    transition: all 0.2s;
+  .header-links {
+    display: flex;
+    gap: 10px;
   }
-  .page-header .overlay-link:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+  .header-link {
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header-link:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
   }
 
+  /* ===== GRID ===== */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 16px;
-    max-width: 1200px;
   }
 
+  /* ===== CARDS ===== */
   .card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 18px;
-    transition: border-color 0.2s;
+    padding: 20px;
+    transition: all 0.3s ease;
+    animation: cardIn 0.5s ease backwards;
   }
-  .card:hover { border-color: var(--border-hover); }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.2s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.3s; }
+  .card:nth-child(7) { animation-delay: 0.35s; }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card:hover {
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.08);
+  }
   .card-title {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: var(--accent);
-    margin-bottom: 14px;
+    color: var(--accent2);
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .card-title .icon { font-size: 16px; }
+  .card-title .icon { font-size: 14px; }
 
+  /* ===== FORMS ===== */
   .form-group { margin-bottom: 12px; }
   .form-group label {
     display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-dim);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--dim);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
   }
-  input[type="text"], input[type="number"], input[type="color"], select {
+  input[type="text"], input[type="number"], select {
     width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--bg-input);
+    background: var(--input);
     color: var(--text);
     font-size: 13px;
     font-family: inherit;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.25s;
   }
-  input:focus, select:focus { border-color: var(--accent); }
-  input[type="color"] {
-    height: 40px;
-    padding: 4px;
-    cursor: pointer;
+  input:focus, select:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
-  .row {
-    display: flex;
-    gap: 10px;
-  }
+  input::placeholder { color: var(--dim); }
+  .row { display: flex; gap: 10px; }
   .row > * { flex: 1; }
 
+  /* ===== BUTTONS ===== */
   .btn {
-    padding: 10px 18px;
-    border-radius: 10px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
     border: none;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
     font-family: inherit;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    position: relative;
+    overflow: hidden;
   }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { box-shadow: 0 0 16px rgba(59, 130, 246, 0.4); transform: translateY(-1px); }
-  .btn-success { background: var(--success); color: #fff; }
-  .btn-success:hover { box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); }
-  .btn-danger { background: var(--danger); color: #fff; }
-  .btn-danger:hover { box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
-  .btn-warning { background: var(--warning); color: #1a1a1a; }
-  .btn-warning:hover { box-shadow: 0 0 16px rgba(245, 158, 11, 0.4); }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .btn:hover::after { opacity: 1; }
+  .btn:active { transform: scale(0.97); }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { box-shadow: 0 0 20px rgba(34, 197, 94, 0.35); }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { box-shadow: 0 0 20px rgba(239, 68, 68, 0.35); }
+  .btn-yellow { background: var(--yellow); color: #000; }
+  .btn-yellow:hover { box-shadow: 0 0 20px rgba(245, 158, 11, 0.35); }
+  .btn-blue { background: var(--accent2); color: #fff; }
+  .btn-blue:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.35); }
   .btn-outline {
     background: transparent;
     border: 1px solid var(--border);
     color: var(--text);
   }
-  .btn-outline:hover { border-color: var(--accent); }
-  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-outline:hover { border-color: var(--accent2); background: rgba(59, 130, 246, 0.06); }
+  .btn-sm { padding: 7px 14px; font-size: 11px; }
   .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  .timer-display {
-    font-size: 36px;
+  /* ===== TIMER ===== */
+  .timer-big {
+    font-size: 42px;
     font-weight: 900;
     text-align: center;
-    padding: 14px;
-    color: var(--text);
+    padding: 10px 0 16px;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
+    color: var(--text);
+    transition: color 0.3s;
   }
-  .timer-display.running { color: var(--success); }
-  .timer-display.paused { color: var(--warning); }
+  .timer-big.running { color: var(--green); text-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+  .timer-big.paused { color: var(--yellow); text-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+  .timer-big.stopped { color: var(--dim); }
 
-  .status-dot {
-    display: inline-block;
-    width: 8px; height: 8px;
+  /* ===== CONNECTION STATUS ===== */
+  .conn-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--input);
+    border: 1px solid var(--border);
+    margin-top: 10px;
+    transition: all 0.3s;
+  }
+  .conn-status.connected {
+    border-color: rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.05);
+  }
+  .conn-status.error {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.05);
+  }
+  .conn-dot {
+    width: 10px; height: 10px;
     border-radius: 50%;
-    margin-right: 6px;
+    background: var(--red);
+    flex-shrink: 0;
+    transition: all 0.3s;
   }
-  .status-dot.on { background: var(--success); box-shadow: 0 0 8px var(--success); }
-  .status-dot.off { background: var(--danger); }
+  .conn-status.connected .conn-dot {
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse 1.5s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .conn-text { font-size: 12px; color: var(--dim); }
+  .conn-status.connected .conn-text { color: var(--green); }
+  .conn-status.error .conn-text { color: var(--red); }
 
+  /* ===== LOADING SPINNER ===== */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== SEARCH ===== */
   .search-results {
-    max-height: 200px;
+    max-height: 180px;
     overflow-y: auto;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     margin-top: 6px;
-    background: var(--bg-input);
+    background: var(--input);
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   .search-results::-webkit-scrollbar { width: 4px; }
-  .search-results::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+  .search-results::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 4px; }
   .search-item {
     padding: 8px 12px;
     cursor: pointer;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: background 0.15s;
+    transition: all 0.15s;
   }
-  .search-item:hover { background: rgba(59, 130, 246, 0.1); }
+  .search-item:last-child { border-bottom: none; }
+  .search-item:hover { background: rgba(59, 130, 246, 0.08); }
   .search-item img {
-    width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
     border: 1px solid var(--border);
   }
-  .search-item .item-name { font-weight: 600; }
-  .search-item .item-coins { color: var(--text-dim); font-size: 11px; margin-left: auto; }
+  .search-item .s-name { font-weight: 600; }
+  .search-item .s-coins { color: var(--dim); font-size: 11px; margin-left: auto; }
 
+  /* ===== COLOR ROWS ===== */
   .color-row {
     display: flex;
     align-items: center;
@@ -209,256 +362,315 @@
   }
   .color-row label {
     flex: 1;
-    font-size: 12px;
-    color: var(--text-dim);
+    font-size: 11px;
+    color: var(--dim);
     font-weight: 600;
   }
   .color-row input[type="color"] {
-    width: 40px;
-    height: 32px;
+    width: 36px;
+    height: 30px;
     flex: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+    background: var(--input);
   }
   .color-row input[type="text"] {
     width: 80px;
     flex: 0;
     text-align: center;
     font-size: 11px;
-    font-family: monospace;
+    font-family: 'SF Mono', monospace;
+    padding: 6px 8px;
   }
 
+  /* ===== TOAST ===== */
   .toast {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
-    padding: 12px 20px;
+    bottom: 28px;
+    right: 28px;
+    padding: 14px 24px;
     border-radius: var(--radius);
-    background: var(--bg-card);
-    border: 1px solid var(--success);
-    color: var(--success);
+    background: var(--card);
+    border: 1px solid var(--green);
+    color: var(--green);
     font-size: 13px;
-    font-weight: 600;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s;
+    font-weight: 700;
     z-index: 999;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    .header { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
-<div class="page-header">
-  <h1>&#127942; AUCTION ADMIN</h1>
-  <a class="overlay-link" href="/overlay" target="_blank">&#128187; Open Overlay</a>
-</div>
+<div class="bg-glow"></div>
 
-<div class="grid">
-  <!-- TikTok Connection -->
-  <div class="card">
-    <div class="card-title"><span class="icon">&#128225;</span> TikTok Connection</div>
-    <div class="form-group">
-      <label>Live Stream Username</label>
+<div class="wrapper">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">&#9889;</div>
+      <h1>AUCTION ADMIN</h1>
+    </div>
+    <div class="header-links">
+      <a class="header-link" href="/overlay" target="_blank">&#128187; Overlay</a>
+      <a class="header-link" href="/" target="_blank">&#127968; Website</a>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid">
+
+    <!-- TikTok Connection -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128225;</span> TikTok Connection</div>
+      <div class="form-group">
+        <label>Stream Username</label>
+        <div class="row">
+          <input type="text" id="tiktok-user" placeholder="@username or username">
+          <button class="btn btn-green btn-sm" id="btn-connect" onclick="connectTikTok()">&#9654; Go</button>
+        </div>
+      </div>
+      <div class="conn-status" id="conn-status">
+        <div class="conn-dot"></div>
+        <span class="conn-text" id="conn-text">Disconnected</span>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-red btn-sm" onclick="disconnectTikTok()">&#10005; Disconnect</button>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9201;</span> Auction Timer</div>
+      <div class="timer-big stopped" id="timer-display">02:00</div>
+      <div class="form-group">
+        <label>Duration (seconds)</label>
+        <input type="number" id="timer-duration" value="120" min="10" max="3600">
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-green btn-sm" onclick="startTimer()">&#9654; Start</button>
+        <button class="btn btn-yellow btn-sm" onclick="pauseTimer()">&#10074;&#10074; Pause</button>
+        <button class="btn btn-outline btn-sm" onclick="resetTimer()">&#8634; Reset</button>
+      </div>
+    </div>
+
+    <!-- Snipe Delay -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9889;</span> Snipe Delay</div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="snipe-enabled" onchange="updateSnipe()">
+          <option value="false">Disabled</option>
+          <option value="true">Enabled</option>
+        </select>
+      </div>
       <div class="row">
-        <input type="text" id="tiktok-user" placeholder="@username or username">
-        <button class="btn btn-success btn-sm" id="btn-connect" onclick="connectTikTok()">Connect</button>
+        <div class="form-group">
+          <label>Extra Time (sec)</label>
+          <input type="number" id="snipe-seconds" value="30" min="5" max="120" onchange="updateSnipe()">
+        </div>
+        <div class="form-group">
+          <label>Trigger (sec)</label>
+          <input type="number" id="snipe-threshold" value="10" min="3" max="60" onchange="updateSnipe()">
+        </div>
       </div>
+      <button class="btn btn-yellow btn-sm" onclick="addSnipeTime()">&#10133; Force Add</button>
     </div>
-    <div style="font-size:12px;color:var(--text-dim);">
-      <span class="status-dot off" id="status-dot"></span>
-      <span id="status-text">Disconnected</span>
-    </div>
-    <div style="margin-top:10px;">
-      <button class="btn btn-danger btn-sm" onclick="disconnectTikTok()">Disconnect</button>
-    </div>
-  </div>
 
-  <!-- Timer Controls -->
-  <div class="card">
-    <div class="card-title"><span class="icon">&#9201;</span> Auction Timer</div>
-    <div class="timer-display" id="timer-display">02:00</div>
-    <div class="form-group">
-      <label>Duration (seconds)</label>
-      <input type="number" id="timer-duration" value="120" min="10" max="3600">
-    </div>
-    <div class="btn-group">
-      <button class="btn btn-success btn-sm" onclick="startTimer()">&#9654; Start</button>
-      <button class="btn btn-warning btn-sm" onclick="pauseTimer()">&#10074;&#10074; Pause</button>
-      <button class="btn btn-outline btn-sm" onclick="resetTimer()">&#8634; Reset</button>
-    </div>
-  </div>
-
-  <!-- Snipe Delay -->
-  <div class="card">
-    <div class="card-title"><span class="icon">&#9889;</span> Snipe Delay (Anti-Snipe)</div>
-    <div class="form-group">
-      <label>Enabled</label>
-      <select id="snipe-enabled" onchange="updateSnipe()">
-        <option value="false">Disabled</option>
-        <option value="true">Enabled</option>
-      </select>
-    </div>
-    <div class="row">
+    <!-- Badge -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#11088;</span> Status Badge</div>
       <div class="form-group">
-        <label>Extra Time (sec)</label>
-        <input type="number" id="snipe-seconds" value="30" min="5" max="120" onchange="updateSnipe()">
+        <label>Badge Text</label>
+        <input type="text" id="badge-text" value="538 VOUCHES" placeholder="e.g. 538 VOUCHES">
+      </div>
+      <button class="btn btn-blue btn-sm" onclick="updateBadge()">&#10003; Update</button>
+    </div>
+
+    <!-- Branding -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127991;</span> Branding</div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="brand-title" value="ZOOZI" placeholder="Title">
       </div>
       <div class="form-group">
-        <label>Trigger Threshold (sec)</label>
-        <input type="number" id="snipe-threshold" value="10" min="3" max="60" onchange="updateSnipe()">
+        <label>Subtitle</label>
+        <input type="text" id="brand-subtitle" value="ZOOZI.APP" placeholder="Subtitle">
       </div>
+      <button class="btn btn-blue btn-sm" onclick="updateBranding()">&#10003; Update</button>
     </div>
-    <button class="btn btn-warning btn-sm" onclick="addSnipeTime()">&#10133; Force Add Time</button>
-  </div>
 
-  <!-- Badge / Vouches -->
-  <div class="card">
-    <div class="card-title"><span class="icon">&#10024;</span> Status Badge / Vouches</div>
-    <div class="form-group">
-      <label>Badge Text</label>
-      <input type="text" id="badge-text" value="538 VOUCHES" placeholder="e.g. 538 VOUCHES">
-    </div>
-    <button class="btn btn-primary btn-sm" onclick="updateBadge()">&#10003; Update Badge</button>
-  </div>
-
-  <!-- Branding -->
-  <div class="card">
-    <div class="card-title"><span class="icon">&#127991;</span> Overlay Branding</div>
-    <div class="form-group">
-      <label>Title</label>
-      <input type="text" id="brand-title" value="ZOOZI" placeholder="e.g. ZOOZI">
-    </div>
-    <div class="form-group">
-      <label>Subtitle</label>
-      <input type="text" id="brand-subtitle" value="Place your bids with gifts!" placeholder="Subtitle text">
-    </div>
-    <button class="btn btn-primary btn-sm" onclick="updateBranding()">&#10003; Update Branding</button>
-  </div>
-
-  <!-- Manual Leaderboard -->
-  <div class="card" style="grid-column: span 1;">
-    <div class="card-title"><span class="icon">&#128200;</span> Manual Leaderboard</div>
-    <div class="form-group">
-      <label>Search Existing Bidder</label>
-      <input type="text" id="search-bidder" placeholder="Type to search..." oninput="searchBidders()">
-      <div class="search-results" id="search-results" style="display:none;"></div>
-    </div>
-    <div style="margin-bottom:12px;">
+    <!-- Manual Leaderboard -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128200;</span> Manual Leaderboard</div>
       <div class="form-group">
-        <label>Or Enter Username</label>
+        <label>Search Bidder</label>
+        <input type="text" id="search-bidder" placeholder="Type to search..." oninput="searchBidders()">
+        <div class="search-results" id="search-results" style="display:none;"></div>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
         <input type="text" id="manual-username" placeholder="Username">
       </div>
       <div class="form-group">
-        <label>Profile Image URL (optional)</label>
+        <label>Avatar URL (optional)</label>
         <input type="text" id="manual-avatar" placeholder="https://...">
       </div>
-    </div>
-    <div class="row">
-      <div class="form-group">
-        <label>Add Coins</label>
-        <input type="number" id="manual-coins-add" value="100" min="1">
+      <div class="row">
+        <div class="form-group">
+          <label>Add Coins</label>
+          <input type="number" id="manual-coins-add" value="100" min="1">
+        </div>
+        <div class="form-group">
+          <label>Subtract</label>
+          <input type="number" id="manual-coins-sub" value="100" min="1">
+        </div>
       </div>
-      <div class="form-group">
-        <label>Subtract Coins</label>
-        <input type="number" id="manual-coins-sub" value="100" min="1">
+      <div class="btn-group">
+        <button class="btn btn-green btn-sm" onclick="addManualBid()">+ Add</button>
+        <button class="btn btn-yellow btn-sm" onclick="subtractManualBid()">&#8722; Sub</button>
+        <button class="btn btn-red btn-sm" onclick="removeSelectedBidder()">&#10005; Remove</button>
+      </div>
+      <div style="margin-top:8px;">
+        <button class="btn btn-red btn-sm" onclick="resetBids()">&#9888; Reset All</button>
       </div>
     </div>
-    <div class="btn-group">
-      <button class="btn btn-success btn-sm" onclick="addManualBid()">+ Add Coins</button>
-      <button class="btn btn-warning btn-sm" onclick="subtractManualBid()">&#8722; Subtract</button>
-      <button class="btn btn-danger btn-sm" onclick="removeSelectedBidder()">&#10005; Remove</button>
-    </div>
-    <div style="margin-top:10px;">
-      <button class="btn btn-danger btn-sm" onclick="resetBids()">&#9888; Reset All Bids</button>
-    </div>
-  </div>
 
-  <!-- Theme Customizer -->
-  <div class="card">
-    <div class="card-title"><span class="icon">&#127912;</span> Theme Customizer</div>
-    <div class="color-row">
-      <label>Accent</label>
-      <input type="color" id="th-accent" value="#a855f7" onchange="syncColor('th-accent')">
-      <input type="text" id="th-accent-hex" value="#a855f7" onchange="syncPicker('th-accent')">
+    <!-- Theme -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127912;</span> Theme Customizer</div>
+      <div class="color-row">
+        <label>Accent</label>
+        <input type="color" id="th-accent" value="#ef4444" onchange="syncColor('th-accent')">
+        <input type="text" id="th-accent-hex" value="#ef4444" onchange="syncPicker('th-accent')">
+      </div>
+      <div class="color-row">
+        <label>Accent 2</label>
+        <input type="color" id="th-accentSecondary" value="#3b82f6" onchange="syncColor('th-accentSecondary')">
+        <input type="text" id="th-accentSecondary-hex" value="#3b82f6" onchange="syncPicker('th-accentSecondary')">
+      </div>
+      <div class="color-row">
+        <label>Timer</label>
+        <input type="color" id="th-timerColor" value="#facc15" onchange="syncColor('th-timerColor')">
+        <input type="text" id="th-timerColor-hex" value="#facc15" onchange="syncPicker('th-timerColor')">
+      </div>
+      <div class="color-row">
+        <label>Text</label>
+        <input type="color" id="th-textPrimary" value="#ffffff" onchange="syncColor('th-textPrimary')">
+        <input type="text" id="th-textPrimary-hex" value="#ffffff" onchange="syncPicker('th-textPrimary')">
+      </div>
+      <div class="color-row">
+        <label>Dim Text</label>
+        <input type="color" id="th-textSecondary" value="#a1a1aa" onchange="syncColor('th-textSecondary')">
+        <input type="text" id="th-textSecondary-hex" value="#a1a1aa" onchange="syncPicker('th-textSecondary')">
+      </div>
+      <div class="color-row">
+        <label>Border Glow</label>
+        <input type="color" id="th-borderGlow" value="#3b82f6" onchange="syncColor('th-borderGlow')">
+        <input type="text" id="th-borderGlow-hex" value="#3b82f6" onchange="syncPicker('th-borderGlow')">
+      </div>
+      <div class="color-row">
+        <label>Board BG</label>
+        <input type="color" id="th-bgPrimary" value="#12101e" onchange="syncColor('th-bgPrimary')">
+        <input type="text" id="th-bgPrimary-hex" value="#12101e" onchange="syncPicker('th-bgPrimary')">
+      </div>
+      <div class="color-row">
+        <label>Pill BG</label>
+        <input type="color" id="th-pillBg" value="#1e1a33" onchange="syncColor('th-pillBg')">
+        <input type="text" id="th-pillBg-hex" value="#1e1a33" onchange="syncPicker('th-pillBg')">
+      </div>
+      <div class="form-group">
+        <label>Opacity: <span id="opacity-val">1.0</span></label>
+        <input type="range" id="th-overlayOpacity" min="0.1" max="1" step="0.05" value="1" style="width:100%;" oninput="document.getElementById('opacity-val').textContent=this.value">
+      </div>
+      <button class="btn btn-blue btn-sm" onclick="applyTheme()">&#10003; Apply</button>
     </div>
-    <div class="color-row">
-      <label>Accent Secondary</label>
-      <input type="color" id="th-accentSecondary" value="#6366f1" onchange="syncColor('th-accentSecondary')">
-      <input type="text" id="th-accentSecondary-hex" value="#6366f1" onchange="syncPicker('th-accentSecondary')">
-    </div>
-    <div class="color-row">
-      <label>Timer Color</label>
-      <input type="color" id="th-timerColor" value="#facc15" onchange="syncColor('th-timerColor')">
-      <input type="text" id="th-timerColor-hex" value="#facc15" onchange="syncPicker('th-timerColor')">
-    </div>
-    <div class="color-row">
-      <label>Text Primary</label>
-      <input type="color" id="th-textPrimary" value="#ffffff" onchange="syncColor('th-textPrimary')">
-      <input type="text" id="th-textPrimary-hex" value="#ffffff" onchange="syncPicker('th-textPrimary')">
-    </div>
-    <div class="color-row">
-      <label>Text Secondary</label>
-      <input type="color" id="th-textSecondary" value="#a1a1aa" onchange="syncColor('th-textSecondary')">
-      <input type="text" id="th-textSecondary-hex" value="#a1a1aa" onchange="syncPicker('th-textSecondary')">
-    </div>
-    <div class="color-row">
-      <label>Border Glow</label>
-      <input type="color" id="th-borderGlow" value="#a855f7" onchange="syncColor('th-borderGlow')">
-      <input type="text" id="th-borderGlow-hex" value="#a855f7" onchange="syncPicker('th-borderGlow')">
-    </div>
-    <div class="color-row">
-      <label>Background Primary</label>
-      <input type="color" id="th-bgPrimary" value="#0f0a19" onchange="syncColor('th-bgPrimary')">
-      <input type="text" id="th-bgPrimary-hex" value="#0f0a19" onchange="syncPicker('th-bgPrimary')">
-    </div>
-    <div class="color-row">
-      <label>Pill Background</label>
-      <input type="color" id="th-pillBg" value="#281446" onchange="syncColor('th-pillBg')">
-      <input type="text" id="th-pillBg-hex" value="#281446" onchange="syncPicker('th-pillBg')">
-    </div>
-    <div class="form-group">
-      <label>Overlay Opacity: <span id="opacity-val">1.0</span></label>
-      <input type="range" id="th-overlayOpacity" min="0.1" max="1" step="0.05" value="1" style="width:100%;" oninput="document.getElementById('opacity-val').textContent=this.value">
-    </div>
-    <button class="btn btn-primary btn-sm" onclick="applyTheme()">&#10003; Apply Theme</button>
+
   </div>
 </div>
 
-<div class="toast" id="toast">Saved!</div>
+<!-- Toast -->
+<div class="toast" id="toast">&#10003; Saved!</div>
 
 <script>
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 let selectedBidder = null;
 let allBidders = [];
+let connecting = false;
 
 function send(msg) {
   if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
 }
 
-function toast(msg) {
-  $("toast").textContent = msg;
-  $("toast").classList.add("show");
-  setTimeout(() => $("toast").classList.remove("show"), 2000);
+function toast(msg, isError) {
+  const el = $("toast");
+  el.innerHTML = (isError ? "&#10007; " : "&#10003; ") + msg;
+  el.className = "toast" + (isError ? " error" : "");
+  void el.offsetWidth;
+  el.classList.add("show");
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+function setConnecting(state) {
+  connecting = state;
+  const btn = $("btn-connect");
+  if (state) {
+    btn.innerHTML = '<span class="spinner"></span>';
+    btn.disabled = true;
+  } else {
+    btn.innerHTML = "&#9654; Go";
+    btn.disabled = false;
+  }
 }
 
 // --- TikTok ---
 function connectTikTok() {
+  if (connecting) return;
   const username = $("tiktok-user").value.trim().replace("@", "");
-  if (!username) return;
+  if (!username) return toast("Enter a username", true);
+  setConnecting(true);
+  $("conn-status").className = "conn-status";
+  $("conn-text").textContent = "Connecting to " + username + "...";
   send({ type: "admin_connect_tiktok", username });
 }
 function disconnectTikTok() {
   send({ type: "admin_disconnect" });
+  setConnecting(false);
 }
 
 // --- Timer ---
 function startTimer() {
   send({ type: "timer_start", duration: parseInt($("timer-duration").value) || 120 });
+  toast("Timer started!");
 }
 function pauseTimer() {
   send({ type: "timer_pause" });
+  toast("Timer paused");
 }
 function resetTimer() {
   send({ type: "timer_reset", seconds: parseInt($("timer-duration").value) || 120 });
+  toast("Timer reset");
 }
 
 // --- Snipe ---
@@ -472,6 +684,7 @@ function updateSnipe() {
 }
 function addSnipeTime() {
   send({ type: "add_snipe_time" });
+  toast("Snipe time added!");
 }
 
 // --- Badge ---
@@ -489,36 +702,32 @@ function updateBranding() {
 // --- Search ---
 function searchBidders() {
   const q = $("search-bidder").value.toLowerCase().trim();
-  const results = $("search-results");
-  if (!q) { results.style.display = "none"; return; }
-  const matches = allBidders.filter((b) => b.username.toLowerCase().includes(q));
-  if (matches.length === 0) { results.style.display = "none"; return; }
-  results.style.display = "block";
-  results.innerHTML = matches.map((b) => {
-    const pic = b.profilePic || "https://ui-avatars.com/api/?name=" + encodeURIComponent(b.username) + "&background=3b1f6e&color=fff&size=128";
-    return `<div class="search-item" onclick="selectBidder('${escapeAttr(b.username)}')">
-      <img src="${pic}" alt="">
-      <span class="item-name">${escapeHtml(b.username)}</span>
-      <span class="item-coins">${b.coins} coins</span>
-    </div>`;
+  const el = $("search-results");
+  if (!q) { el.style.display = "none"; return; }
+  const m = allBidders.filter(b => b.username.toLowerCase().includes(q));
+  if (!m.length) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.innerHTML = m.map(b => {
+    const pic = b.profilePic || "https://ui-avatars.com/api/?name=" + encodeURIComponent(b.username) + "&background=1e3a5f&color=c4b5fd&size=128";
+    return '<div class="search-item" onclick="selectBidder(\'' + esc(b.username) + '\')"><img src="' + pic + '"><span class="s-name">' + esc(b.username) + '</span><span class="s-coins">' + b.coins + '</span></div>';
   }).join("");
 }
-function selectBidder(username) {
-  selectedBidder = username;
-  $("manual-username").value = username;
+function selectBidder(u) {
+  selectedBidder = u;
+  $("manual-username").value = u;
   $("search-results").style.display = "none";
-  $("search-bidder").value = username;
+  $("search-bidder").value = u;
 }
 
 function addManualBid() {
   const u = selectedBidder || $("manual-username").value.trim();
-  if (!u) return toast("Enter a username");
+  if (!u) return toast("Enter a username", true);
   send({ type: "manual_add", username: u, coins: parseInt($("manual-coins-add").value) || 100, profilePic: $("manual-avatar").value.trim() });
   toast("Coins added to " + u);
 }
 function subtractManualBid() {
   const u = selectedBidder || $("manual-username").value.trim();
-  if (!u) return toast("Enter a username");
+  if (!u) return toast("Enter a username", true);
   send({ type: "manual_subtract", username: u, amount: parseInt($("manual-coins-sub").value) || 100 });
   toast("Coins subtracted from " + u);
 }
@@ -530,100 +739,104 @@ function removeSelectedBidder() {
   selectedBidder = null;
 }
 function resetBids() {
-  if (!confirm("Reset all bids? This cannot be undone.")) return;
+  if (!confirm("Reset all bids?")) return;
   send({ type: "reset_bids" });
   toast("All bids reset");
 }
 
 // --- Theme ---
 const colorFields = ["accent", "accentSecondary", "timerColor", "textPrimary", "textSecondary", "borderGlow", "bgPrimary", "pillBg"];
-function syncColor(baseId) {
-  $(baseId + "-hex").value = $(baseId).value;
-}
-function syncPicker(baseId) {
-  const hex = $(baseId + "-hex").value;
-  if (/^#[0-9a-fA-F]{6}$/.test(hex)) $(baseId).value = hex;
-}
+function syncColor(id) { $(id + "-hex").value = $(id).value; }
+function syncPicker(id) { const h = $(id + "-hex").value; if (/^#[0-9a-fA-F]{6}$/.test(h)) $(id).value = h; }
 function applyTheme() {
-  const theme = {};
-  colorFields.forEach((f) => {
-    const hex = $(`th-${f}-hex`).value;
-    const alpha = f === "bgPrimary" || f === "pillBg" ? "e6" : "ff";
-    theme[f] = hex + alpha;
-    if (f === "borderGlow") theme[f] = hex + "80";
+  const t = {};
+  colorFields.forEach(f => {
+    const h = $(`th-${f}-hex`).value;
+    const a = f === "bgPrimary" || f === "pillBg" ? "e6" : "ff";
+    t[f] = h + (f === "borderGlow" ? "80" : a);
   });
-  theme.overlayOpacity = parseFloat($("th-overlayOpacity").value);
-  send({ type: "theme_update", theme });
+  t.overlayOpacity = parseFloat($("th-overlayOpacity").value);
+  send({ type: "theme_update", theme: t });
   toast("Theme applied!");
 }
 
-function escapeHtml(str) { const d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
-function escapeAttr(str) { return str.replace(/'/g, "\\'"); }
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+function formatTime(s) {
+  return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+}
 
 // --- WebSocket ---
 const ws = new WebSocket((location.protocol === "https:" ? "wss:" : "ws:") + "//" + location.host);
 
-ws.onmessage = (e) => {
-  const data = JSON.parse(e.data);
-  switch (data.type) {
+ws.onmessage = e => {
+  const d = JSON.parse(e.data);
+  switch (d.type) {
     case "init":
-      if (data.connected) {
-        $("status-dot").className = "status-dot on";
-        $("status-text").textContent = "Connected to " + data.targetUser;
-        $("tiktok-user").value = data.targetUser;
+      if (d.connected) {
+        $("conn-status").className = "conn-status connected";
+        $("conn-text").textContent = "Connected to " + d.targetUser;
+        $("tiktok-user").value = d.targetUser;
       }
-      if (data.timer) {
-        $("timer-duration").value = data.timer.total;
-        $("timer-display").textContent = formatTime(data.timer.remaining);
-        $("timer-display").className = "timer-display " + (data.timer.running ? "running" : "paused");
+      if (d.timer) {
+        $("timer-duration").value = d.timer.total;
+        $("timer-display").textContent = formatTime(d.timer.remaining);
+        $("timer-display").className = "timer-big " + (d.timer.running ? "running" : "stopped");
       }
-      if (data.snipeDelay) {
-        $("snipe-enabled").value = String(data.snipeDelay.enabled);
-        $("snipe-seconds").value = data.snipeDelay.seconds;
-        $("snipe-threshold").value = data.snipeDelay.threshold;
+      if (d.snipeDelay) {
+        $("snipe-enabled").value = String(d.snipeDelay.enabled);
+        $("snipe-seconds").value = d.snipeDelay.seconds;
+        $("snipe-threshold").value = d.snipeDelay.threshold;
       }
-      if (data.badge) $("badge-text").value = data.badge.text;
-      if (data.branding) {
-        $("brand-title").value = data.branding.title;
-        $("brand-subtitle").value = data.branding.subtitle;
+      if (d.badge) $("badge-text").value = d.badge.text;
+      if (d.branding) {
+        $("brand-title").value = d.branding.title;
+        $("brand-subtitle").value = d.branding.subtitle;
       }
-      if (data.bidders) {
-        allBidders = data.bidders;
-      }
+      if (d.bidders) allBidders = d.bidders;
       break;
 
     case "connection_status":
-      if (data.connected) {
-        $("status-dot").className = "status-dot on";
-        $("status-text").textContent = "Connected to " + (data.username || "live stream");
+      setConnecting(false);
+      if (d.connected) {
+        $("conn-status").className = "conn-status connected";
+        $("conn-text").textContent = "Connected to " + (d.username || "live stream");
+        toast("Connected!");
       } else {
-        $("status-dot").className = "status-dot off";
-        $("status-text").textContent = data.error || "Disconnected";
+        $("conn-status").className = "conn-status error";
+        $("conn-text").textContent = d.error || "Disconnected";
+        toast(d.error || "Connection failed", true);
       }
       break;
 
     case "timer_tick":
+      $("timer-display").textContent = formatTime(d.remaining);
+      $("timer-display").className = "timer-big running";
+      break;
+
     case "timer_sync":
-      $("timer-display").textContent = formatTime(data.remaining);
-      $("timer-display").className = "timer-display " + (data.running !== undefined ? (data.running ? "running" : "paused") : "running");
+      $("timer-display").textContent = formatTime(d.remaining);
+      $("timer-display").className = "timer-big " + (d.running ? "running" : "stopped");
       break;
 
     case "timer_end":
       $("timer-display").textContent = "00:00";
-      $("timer-display").className = "timer-display paused";
+      $("timer-display").className = "timer-big stopped";
+      toast("Timer ended!");
       break;
 
     case "bid_update":
-      allBidders = data.bidders;
+      allBidders = d.bidders;
+      break;
+
+    case "gift_received":
+      toast(d.username + " sent " + d.gift + " (" + d.coins + " coins)");
       break;
   }
 };
 
-function formatTime(s) {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
-}
+ws.onopen = () => toast("Connected to server");
+ws.onerror = () => toast("WebSocket error", true);
 </script>
 </body>
 </html>
