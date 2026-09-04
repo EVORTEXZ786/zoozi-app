@@ -145,119 +145,217 @@
     animation: cardIn 0.5s ease backwards;
     position: relative;
     overflow: hidden;
+    z-index: 1;
   }
 
-  /* Corner zig-zags on hover */
-  .card::before, .card::after {
+  /* Animated border trace on hover */
+  .card::before {
     content: '';
     position: absolute;
-    width: 0; height: 0;
-    border-style: solid;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    inset: -2px;
+    border-radius: calc(var(--radius) + 2px);
+    background: conic-gradient(from var(--angle, 0deg), var(--accent), var(--accent2), var(--accent), var(--accent2), var(--accent));
+    z-index: -1;
     opacity: 0;
-    z-index: 0;
+    transition: opacity 0.3s;
+    --angle: 0deg;
   }
-  /* Top-left corner triangle */
-  .card::before {
-    top: -2px; left: -2px;
-    border-width: 0 0 28px 28px;
-    border-color: transparent transparent var(--accent) transparent;
-    opacity: 0;
-    transform: scale(0) rotate(0deg);
-  }
-  /* Bottom-right corner triangle */
-  .card::after {
-    bottom: -2px; right: -2px;
-    border-width: 28px 28px 0 0;
-    border-color: var(--accent2) transparent transparent transparent;
-    opacity: 0;
-    transform: scale(0) rotate(0deg);
-  }
-
-  /* Inner zigzag decorations */
-  .card .zig-tl, .card .zig-br {
-    position: absolute;
-    width: 0; height: 0;
-    border-style: solid;
-    opacity: 0;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.06s;
-    z-index: 0;
-  }
-  .card .zig-tl {
-    top: -2px; left: 26px;
-    border-width: 0 0 18px 18px;
-    border-color: transparent transparent rgba(239, 68, 68, 0.5) transparent;
-    transform: scale(0) rotate(0deg);
-  }
-  .card .zig-br {
-    bottom: -2px; right: 26px;
-    border-width: 18px 18px 0 0;
-    border-color: rgba(59, 130, 246, 0.5) transparent transparent transparent;
-    transform: scale(0) rotate(0deg);
-  }
-
-  /* Top-right + bottom-left decorations */
-  .card .zig-tr, .card .zig-bl {
-    position: absolute;
-    width: 0; height: 0;
-    border-style: solid;
-    opacity: 0;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
-    z-index: 0;
-  }
-  .card .zig-tr {
-    top: -2px; right: -2px;
-    border-width: 0 0 20px 20px;
-    border-color: transparent transparent var(--accent2) transparent;
-    transform: scale(0) rotate(0deg);
-  }
-  .card .zig-bl {
-    bottom: -2px; left: -2px;
-    border-width: 20px 20px 0 0;
-    border-color: var(--accent) transparent transparent transparent;
-    transform: scale(0) rotate(0deg);
-  }
-
-  /* Hover state - zig zags pop out */
   .card:hover::before {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
+    animation: borderSpin 3s linear infinite;
+  }
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes borderSpin {
+    to { --angle: 360deg; }
+  }
+  /* Inner mask so only border shows */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: var(--radius);
+    background: var(--card);
+    z-index: -1;
+    transition: background 0.3s;
   }
   .card:hover::after {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-  .card:hover .zig-tl {
-    opacity: 1;
-    transform: scale(1) rotate(-8deg);
-  }
-  .card:hover .zig-br {
-    opacity: 1;
-    transform: scale(1) rotate(-8deg);
-  }
-  .card:hover .zig-tr {
-    opacity: 1;
-    transform: scale(1) rotate(8deg);
-  }
-  .card:hover .zig-bl {
-    opacity: 1;
-    transform: scale(1) rotate(8deg);
+    background: var(--card-hover);
   }
 
-  /* Hover glow line along edges */
-  .card .edge-glow {
+  /* Corner brackets — neon zig-zag spikes */
+  .card .bracket {
+    position: absolute;
+    width: 0; height: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Top-left bracket */
+  .card .bracket.tl {
+    top: 6px; left: 6px;
+    border-top: 3px solid var(--accent);
+    border-left: 3px solid var(--accent);
+    border-top-left-radius: 4px;
+    width: 0; height: 0;
+    filter: drop-shadow(0 0 6px var(--accent));
+  }
+  .card:hover .bracket.tl {
+    width: 28px; height: 28px;
+    opacity: 1;
+    transform: translate(-4px, -4px) rotate(-5deg);
+  }
+
+  /* Top-right bracket */
+  .card .bracket.tr {
+    top: 6px; right: 6px;
+    border-top: 3px solid var(--accent2);
+    border-right: 3px solid var(--accent2);
+    border-top-right-radius: 4px;
+    width: 0; height: 0;
+    filter: drop-shadow(0 0 6px var(--accent2));
+  }
+  .card:hover .bracket.tr {
+    width: 28px; height: 28px;
+    opacity: 1;
+    transform: translate(4px, -4px) rotate(5deg);
+    transition-delay: 0.05s;
+  }
+
+  /* Bottom-left bracket */
+  .card .bracket.bl {
+    bottom: 6px; left: 6px;
+    border-bottom: 3px solid var(--accent2);
+    border-left: 3px solid var(--accent2);
+    border-bottom-left-radius: 4px;
+    width: 0; height: 0;
+    filter: drop-shadow(0 0 6px var(--accent2));
+  }
+  .card:hover .bracket.bl {
+    width: 28px; height: 28px;
+    opacity: 1;
+    transform: translate(-4px, 4px) rotate(5deg);
+    transition-delay: 0.1s;
+  }
+
+  /* Bottom-right bracket */
+  .card .bracket.br {
+    bottom: 6px; right: 6px;
+    border-bottom: 3px solid var(--accent);
+    border-right: 3px solid var(--accent);
+    border-bottom-right-radius: 4px;
+    width: 0; height: 0;
+    filter: drop-shadow(0 0 6px var(--accent));
+  }
+  .card:hover .bracket.br {
+    width: 28px; height: 28px;
+    opacity: 1;
+    transform: translate(4px, 4px) rotate(-5deg);
+    transition-delay: 0.15s;
+  }
+
+  /* Zig-zag spike lines */
+  .card .spike {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transform-origin: left center;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .card .spike.s1 {
+    top: 14px; left: 0;
+    width: 0; transform: scaleX(0) rotate(-25deg);
+  }
+  .card .spike.s2 {
+    top: 22px; left: 0;
+    width: 0; transform: scaleX(0) rotate(-15deg);
+    background: linear-gradient(90deg, var(--accent2), transparent);
+  }
+  .card .spike.s3 {
+    bottom: 14px; right: 0;
+    width: 0; transform: scaleX(0) rotate(25deg);
+    transform-origin: right center;
+    background: linear-gradient(270deg, var(--accent), transparent);
+  }
+  .card .spike.s4 {
+    bottom: 22px; right: 0;
+    width: 0; transform: scaleX(0) rotate(15deg);
+    transform-origin: right center;
+    background: linear-gradient(270deg, var(--accent2), transparent);
+  }
+  .card:hover .spike.s1 { width: 40px; opacity: 0.7; transition-delay: 0.08s; }
+  .card:hover .spike.s2 { width: 30px; opacity: 0.5; transition-delay: 0.12s; }
+  .card:hover .spike.s3 { width: 40px; opacity: 0.7; transition-delay: 0.08s; }
+  .card:hover .spike.s4 { width: 30px; opacity: 0.5; transition-delay: 0.12s; }
+
+  /* Scan line */
+  .card .scanline {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(0);
+  }
+  .card:hover .scanline {
+    opacity: 0.5;
+    animation: scanDown 1.5s ease-in-out infinite;
+  }
+  @keyframes scanDown {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* Corner dot particles */
+  .card .dot {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .card .dot.d1 { top: 10px; left: 10px; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .card .dot.d2 { top: 10px; right: 10px; background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  .card .dot.d3 { bottom: 10px; left: 10px; background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  .card .dot.d4 { bottom: 10px; right: 10px; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .card .dot.d5 { top: 50%; left: 4px; background: var(--gold); box-shadow: 0 0 8px var(--gold); transform: translateY(-50%) scale(0); }
+  .card .dot.d6 { top: 50%; right: 4px; background: var(--gold); box-shadow: 0 0 8px var(--gold); transform: translateY(-50%) scale(0); }
+
+  .card:hover .dot.d1 { opacity: 1; transform: translate(-6px, -6px); transition-delay: 0s; }
+  .card:hover .dot.d2 { opacity: 1; transform: translate(6px, -6px); transition-delay: 0.04s; }
+  .card:hover .dot.d3 { opacity: 1; transform: translate(-6px, 6px); transition-delay: 0.08s; }
+  .card:hover .dot.d4 { opacity: 1; transform: translate(6px, 6px); transition-delay: 0.12s; }
+  .card:hover .dot.d5 { opacity: 0.6; transform: translateY(-50%) scale(1); transition-delay: 0.16s; }
+  .card:hover .dot.d6 { opacity: 0.6; transform: translateY(-50%) scale(1); transition-delay: 0.2s; }
+
+  /* Inner glow pulse */
+  .card .glow-ring {
     position: absolute;
     inset: 0;
     border-radius: var(--radius);
-    pointer-events: none;
     z-index: 0;
+    pointer-events: none;
     opacity: 0;
-    transition: opacity 0.3s;
     box-shadow:
-      inset 0 0 20px rgba(59, 130, 246, 0.08),
-      0 0 20px rgba(59, 130, 246, 0.06);
+      inset 0 0 30px rgba(59, 130, 246, 0.06),
+      inset 0 0 60px rgba(239, 68, 68, 0.03);
+    transition: opacity 0.4s;
   }
-  .card:hover .edge-glow {
+  .card:hover .glow-ring {
     opacity: 1;
   }
   .card:nth-child(1) { animation-delay: 0.05s; }
@@ -557,7 +655,10 @@
 
     <!-- TikTok Connection -->
     <div class="card">
-      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="spike s1"></div><div class="spike s2"></div><div class="spike s3"></div><div class="spike s4"></div>
+      <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+      <div class="scanline"></div><div class="glow-ring"></div>
       <div class="card-title"><span class="icon">&#128225;</span> TikTok Connection</div>
       <div class="form-group">
         <label>Stream Username</label>
@@ -577,7 +678,10 @@
 
     <!-- Timer -->
     <div class="card">
-      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="spike s1"></div><div class="spike s2"></div><div class="spike s3"></div><div class="spike s4"></div>
+      <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+      <div class="scanline"></div><div class="glow-ring"></div>
       <div class="card-title"><span class="icon">&#9201;</span> Auction Timer</div>
       <div class="timer-big stopped" id="timer-display">02:00</div>
       <div class="form-group">
@@ -593,7 +697,10 @@
 
     <!-- Snipe Delay -->
     <div class="card">
-      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="spike s1"></div><div class="spike s2"></div><div class="spike s3"></div><div class="spike s4"></div>
+      <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+      <div class="scanline"></div><div class="glow-ring"></div>
       <div class="card-title"><span class="icon">&#9889;</span> Snipe Delay</div>
       <div class="form-group">
         <label>Status</label>
@@ -617,7 +724,10 @@
 
     <!-- Badge -->
     <div class="card">
-      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="spike s1"></div><div class="spike s2"></div><div class="spike s3"></div><div class="spike s4"></div>
+      <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+      <div class="scanline"></div><div class="glow-ring"></div>
       <div class="card-title"><span class="icon">&#11088;</span> Status Badge</div>
       <div class="form-group">
         <label>Badge Text</label>
@@ -628,7 +738,10 @@
 
     <!-- Branding -->
     <div class="card">
-      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="spike s1"></div><div class="spike s2"></div><div class="spike s3"></div><div class="spike s4"></div>
+      <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+      <div class="scanline"></div><div class="glow-ring"></div>
       <div class="card-title"><span class="icon">&#127991;</span> Branding</div>
       <div class="form-group">
         <label>Title</label>
@@ -643,7 +756,10 @@
 
     <!-- Manual Leaderboard -->
     <div class="card">
-      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="spike s1"></div><div class="spike s2"></div><div class="spike s3"></div><div class="spike s4"></div>
+      <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+      <div class="scanline"></div><div class="glow-ring"></div>
       <div class="card-title"><span class="icon">&#128200;</span> Manual Leaderboard</div>
       <div class="form-group">
         <label>Search Bidder</label>
@@ -680,7 +796,10 @@
 
     <!-- Theme -->
     <div class="card">
-      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="spike s1"></div><div class="spike s2"></div><div class="spike s3"></div><div class="spike s4"></div>
+      <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+      <div class="scanline"></div><div class="glow-ring"></div>
       <div class="card-title"><span class="icon">&#127912;</span> Theme Customizer</div>
       <div class="color-row">
         <label>Accent</label>
@@ -960,6 +1079,24 @@ ws.onmessage = e => {
 
 ws.onopen = () => toast("Connected to server");
 ws.onerror = () => toast("WebSocket error", true);
+
+// JS fallback for animated border rotation
+document.querySelectorAll('.card').forEach(card => {
+  let angle = 0;
+  let raf;
+  card.addEventListener('mouseenter', () => {
+    const animate = () => {
+      angle = (angle + 2) % 360;
+      card.style.setProperty('--angle', angle + 'deg');
+      raf = requestAnimationFrame(animate);
+    };
+    animate();
+  });
+  card.addEventListener('mouseleave', () => {
+    cancelAnimationFrame(raf);
+    card.style.setProperty('--angle', '0deg');
+  });
+});
 </script>
 </body>
 </html>
