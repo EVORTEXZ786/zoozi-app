@@ -143,6 +143,122 @@
     padding: 20px;
     transition: all 0.3s ease;
     animation: cardIn 0.5s ease backwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Corner zig-zags on hover */
+  .card::before, .card::after {
+    content: '';
+    position: absolute;
+    width: 0; height: 0;
+    border-style: solid;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+    z-index: 0;
+  }
+  /* Top-left corner triangle */
+  .card::before {
+    top: -2px; left: -2px;
+    border-width: 0 0 28px 28px;
+    border-color: transparent transparent var(--accent) transparent;
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  /* Bottom-right corner triangle */
+  .card::after {
+    bottom: -2px; right: -2px;
+    border-width: 28px 28px 0 0;
+    border-color: var(--accent2) transparent transparent transparent;
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+
+  /* Inner zigzag decorations */
+  .card .zig-tl, .card .zig-br {
+    position: absolute;
+    width: 0; height: 0;
+    border-style: solid;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.06s;
+    z-index: 0;
+  }
+  .card .zig-tl {
+    top: -2px; left: 26px;
+    border-width: 0 0 18px 18px;
+    border-color: transparent transparent rgba(239, 68, 68, 0.5) transparent;
+    transform: scale(0) rotate(0deg);
+  }
+  .card .zig-br {
+    bottom: -2px; right: 26px;
+    border-width: 18px 18px 0 0;
+    border-color: rgba(59, 130, 246, 0.5) transparent transparent transparent;
+    transform: scale(0) rotate(0deg);
+  }
+
+  /* Top-right + bottom-left decorations */
+  .card .zig-tr, .card .zig-bl {
+    position: absolute;
+    width: 0; height: 0;
+    border-style: solid;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
+    z-index: 0;
+  }
+  .card .zig-tr {
+    top: -2px; right: -2px;
+    border-width: 0 0 20px 20px;
+    border-color: transparent transparent var(--accent2) transparent;
+    transform: scale(0) rotate(0deg);
+  }
+  .card .zig-bl {
+    bottom: -2px; left: -2px;
+    border-width: 20px 20px 0 0;
+    border-color: var(--accent) transparent transparent transparent;
+    transform: scale(0) rotate(0deg);
+  }
+
+  /* Hover state - zig zags pop out */
+  .card:hover::before {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  .card:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  .card:hover .zig-tl {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+  .card:hover .zig-br {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+  .card:hover .zig-tr {
+    opacity: 1;
+    transform: scale(1) rotate(8deg);
+  }
+  .card:hover .zig-bl {
+    opacity: 1;
+    transform: scale(1) rotate(8deg);
+  }
+
+  /* Hover glow line along edges */
+  .card .edge-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    box-shadow:
+      inset 0 0 20px rgba(59, 130, 246, 0.08),
+      0 0 20px rgba(59, 130, 246, 0.06);
+  }
+  .card:hover .edge-glow {
+    opacity: 1;
   }
   .card:nth-child(1) { animation-delay: 0.05s; }
   .card:nth-child(2) { animation-delay: 0.1s; }
@@ -441,6 +557,7 @@
 
     <!-- TikTok Connection -->
     <div class="card">
+      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
       <div class="card-title"><span class="icon">&#128225;</span> TikTok Connection</div>
       <div class="form-group">
         <label>Stream Username</label>
@@ -460,6 +577,7 @@
 
     <!-- Timer -->
     <div class="card">
+      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
       <div class="card-title"><span class="icon">&#9201;</span> Auction Timer</div>
       <div class="timer-big stopped" id="timer-display">02:00</div>
       <div class="form-group">
@@ -475,6 +593,7 @@
 
     <!-- Snipe Delay -->
     <div class="card">
+      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
       <div class="card-title"><span class="icon">&#9889;</span> Snipe Delay</div>
       <div class="form-group">
         <label>Status</label>
@@ -498,6 +617,7 @@
 
     <!-- Badge -->
     <div class="card">
+      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
       <div class="card-title"><span class="icon">&#11088;</span> Status Badge</div>
       <div class="form-group">
         <label>Badge Text</label>
@@ -508,6 +628,7 @@
 
     <!-- Branding -->
     <div class="card">
+      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
       <div class="card-title"><span class="icon">&#127991;</span> Branding</div>
       <div class="form-group">
         <label>Title</label>
@@ -522,6 +643,7 @@
 
     <!-- Manual Leaderboard -->
     <div class="card">
+      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
       <div class="card-title"><span class="icon">&#128200;</span> Manual Leaderboard</div>
       <div class="form-group">
         <label>Search Bidder</label>
@@ -558,6 +680,7 @@
 
     <!-- Theme -->
     <div class="card">
+      <div class="zig-tl"></div><div class="zig-br"></div><div class="zig-tr"></div><div class="zig-bl"></div><div class="edge-glow"></div>
       <div class="card-title"><span class="icon">&#127912;</span> Theme Customizer</div>
       <div class="color-row">
         <label>Accent</label>
