@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zoozi.app — Auction Overlay for TikTok Creators</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0814;
+    --sidebar-bg: #0e0b1a;
+    --card-bg: rgba(18, 15, 32, 0.95);
+    --pill-bg: rgba(28, 25, 48, 0.92);
+    --row-bg: rgba(32, 28, 55, 0.85);
+    --text: #ffffff;
+    --text-dim: #8a879e;
+    --gold: #facc15;
+    --green: #22c55e;
+    --purple: #8b5cf6;
+    --teal: #2dd4bf;
+    --pink: #ec4899;
+    --avatar-bg: #4c1d95;
+    --border: rgba(139, 92, 246, 0.2);
+    --radius: 20px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    overflow-x: hidden;
+  }
+
+  /* ===== ANIMATED SPACE BACKGROUND ===== */
+  .space-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .space-bg::before {
+    content: '';
+    position: absolute;
+    top: -20%; left: -10%;
+    width: 60%; height: 80%;
+    background: radial-gradient(ellipse, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    animation: drift1 20s ease-in-out infinite;
+  }
+  .space-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -10%; right: -5%;
+    width: 50%; height: 70%;
+    background: radial-gradient(ellipse, rgba(45, 212, 191, 0.12) 0%, transparent 70%);
+    animation: drift2 25s ease-in-out infinite;
+  }
+  @keyframes drift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5%, 3%) scale(1.05); }
+  }
+  @keyframes drift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-4%, -2%) scale(1.08); }
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+  .sparkle {
+    position: absolute;
+    font-size: 14px;
+    animation: sparkle-float 6s ease-in-out infinite;
+    opacity: 0.7;
+  }
+  @keyframes sparkle-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+    50% { transform: translateY(-15px) rotate(180deg); opacity: 1; }
+  }
+
+  /* ===== LAYOUT ===== */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid rgba(139, 92, 246, 0.1);
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 10;
+  }
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    padding: 0 4px;
+  }
+  .sidebar-logo .logo-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--teal));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 800;
+  }
+  .sidebar-logo span {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding: 0 8px;
+  }
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .nav-item:hover { background: rgba(139, 92, 246, 0.08); color: var(--text); }
+  .nav-item.active {
+    background: rgba(139, 92, 246, 0.12);
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .nav-item .nav-icon {
+    width: 24px; height: 24px;
+    border-radius: 8px;
+    background: rgba(139, 92, 246, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .nav-item .nav-arrow {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .nav-sub {
+    padding-left: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 6px;
+  }
+  .nav-sub-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-sub-item:hover { background: rgba(139, 92, 246, 0.08); color: var(--text); }
+  .nav-sub-item .price {
+    color: var(--teal);
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .sidebar-discord {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--purple), #6366f1);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-top: auto;
+  }
+  .sidebar-discord:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); transform: translateY(-1px); }
+
+  /* ===== MAIN CONTENT ===== */
+  .main {
+    flex: 1;
+    margin-left: 220px;
+    padding: 40px 60px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 20px 0 60px;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-size: 13px;
+    font-weight: 600;
+    color: #fca5a5;
+    margin-bottom: 24px;
+  }
+  .hero-badge .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: pulse-live 1.5s ease infinite;
+  }
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .hero-title {
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 30%, var(--purple) 60%, var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-subtitle {
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+  .join-discord-top {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(18, 15, 32, 0.8);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .join-discord-top:hover { border-color: var(--purple); box-shadow: 0 0 12px rgba(139, 92, 246, 0.3); }
+
+  /* ===== BOARD SHOWCASE ===== */
+  .showcase {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px 0 60px;
+    position: relative;
+  }
+  .showcase-logo {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--teal));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+    position: relative;
+  }
+  .showcase-logo::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--teal));
+    z-index: -1;
+    opacity: 0.4;
+    filter: blur(8px);
+  }
+  .showcase-logo-text {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  /* Mini board (our overlay) */
+  .mini-board {
+    width: 320px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px 16px 14px;
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+    border: 1px solid var(--border);
+  }
+  .mini-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .mini-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 50px;
+    background: var(--pill-bg);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    width: 100%;
+  }
+  .mini-pill .pill-badge {
+    margin-left: auto;
+    background: var(--green);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 50px;
+  }
+  .mini-header {
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  .mini-title {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(250, 204, 21, 0.6);
+  }
+  .mini-subtitle {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+  .mini-timer {
+    text-align: center;
+    padding: 8px 0 14px;
+  }
+  .mini-timer-display {
+    font-size: 52px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 4px;
+    color: #fef9c3;
+    text-shadow: 0 0 15px rgba(250, 204, 21, 0.5), 0 0 30px rgba(250, 204, 21, 0.25);
+    line-height: 1;
+  }
+  .mini-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--purple), var(--gold), var(--purple), transparent);
+    margin: 0 4px 12px;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(234, 179, 8, 0.3);
+  }
+  .mini-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .mini-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--row-bg);
+    border-radius: 50px;
+    border: 1px solid rgba(139, 92, 246, 0.08);
+  }
+  .mini-row.r1 {
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.12) 0%, var(--row-bg) 50%);
+    border-color: rgba(250, 204, 21, 0.25);
+  }
+  .mini-row.r2 {
+    background: linear-gradient(90deg, rgba(148, 163, 184, 0.1) 0%, var(--row-bg) 50%);
+    border-color: rgba(148, 163, 184, 0.2);
+  }
+  .mini-row.r3 {
+    background: linear-gradient(90deg, rgba(217, 119, 6, 0.1) 0%, var(--row-bg) 50%);
+    border-color: rgba(217, 119, 6, 0.2);
+  }
+  .mini-medal { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+  .mini-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--avatar-bg);
+    flex-shrink: 0;
+  }
+  .mini-name {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mini-coins {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .mini-coin-val { font-size: 12px; font-weight: 700; color: var(--gold); }
+  .mini-coin-icon {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fde68a, #eab308 60%, #ca8a04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    font-weight: 900;
+    color: #422006;
+  }
+  .mini-footer {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ===== SECTION TITLES ===== */
+  .section-title {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .section-title .highlight {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .section-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 50px;
+  }
+
+  /* ===== PRICING ===== */
+  .pricing {
+    padding: 60px 0;
+  }
+  .pricing-grid {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .pricing-card {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .pricing-card:hover {
+    border-color: var(--purple);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+    transform: translateY(-4px);
+  }
+  .pricing-card.featured {
+    border-color: var(--gold);
+    box-shadow: 0 0 30px rgba(250, 204, 21, 0.15);
+  }
+  .pricing-card.featured::before {
+    content: 'BEST VALUE';
+    position: absolute;
+    top: 14px;
+    right: -30px;
+    background: var(--gold);
+    color: #000;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 4px 36px;
+    transform: rotate(45deg);
+  }
+  .pricing-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .pricing-price {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .pricing-price span { font-size: 18px; font-weight: 600; color: var(--text-dim); }
+  .pricing-period {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+  .pricing-features {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+  .pricing-features li {
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+  }
+  .pricing-features li:last-child { border-bottom: none; }
+  .pricing-features li .check { color: var(--green); font-size: 14px; }
+  .pricing-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+  }
+  .pricing-btn.primary {
+    background: linear-gradient(135deg, var(--purple), #6366f1);
+    color: #fff;
+  }
+  .pricing-btn.primary:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+  .pricing-btn.secondary {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .pricing-btn.secondary:hover { border-color: var(--purple); }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 40px 0 30px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-top: 1px solid rgba(139, 92, 246, 0.08);
+    margin-top: 40px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .hero-title { font-size: 32px; }
+    .showcase { flex-direction: column; gap: 24px; }
+    .pricing-grid { flex-direction: column; max-width: 360px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Space Background -->
+<div class="space-bg" id="space-bg"></div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-circle">&#9733;</div>
+      <span>zoozi.app</span>
+    </div>
+    <div class="sidebar-label">+ Products</div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <div class="nav-icon">&#9889;</div>
+        Auction Board
+        <span class="nav-arrow">&#9662;</span>
+      </div>
+      <div class="nav-sub">
+        <div class="nav-sub-item">
+          Creator Monthly
+          <span class="price">$10/mo</span>
+        </div>
+        <div class="nav-sub-item">
+          Creator Lifetime
+          <span class="price">$20</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">&#10024;</div>
+        4K Gift Animations
+        <span class="nav-arrow">&#8250;</span>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">&#127922;</div>
+        Roblox Add-On
+        <span class="nav-arrow">&#8250;</span>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">&#127905;</div>
+        Spin Royale
+        <span class="nav-arrow">&#8250;</span>
+      </div>
+    </nav>
+    <a class="sidebar-discord" href="#">
+      &#128172; Join Discord
+    </a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Hero -->
+    <section class="hero">
+      <a class="join-discord-top" href="#">&#128172; Join Discord</a>
+      <div class="hero-badge">
+        <span class="dot"></span>
+        100+ customers using zoozi.app right now
+      </div>
+      <h1 class="hero-title">zoozi.app</h1>
+      <p class="hero-subtitle">Classed as #1 global production service for money earning auctions</p>
+    </section>
+
+    <!-- Board Showcase -->
+    <section class="showcase">
+      <div class="showcase-logo">
+        <span class="showcase-logo-text">zoozi</span>
+      </div>
+      <div class="mini-board">
+        <div class="mini-pills">
+          <div class="mini-pill">
+            <span>&#11088;</span> 538 VOUCHES
+          </div>
+          <div class="mini-pill">
+            <span style="color:#22c55e;">&#10003;</span> NO MINIMUM
+          </div>
+          <div class="mini-pill">
+            <span style="color:#22c55e;">&#127760;</span> SNIPE DELAY
+            <span class="pill-badge">30s</span>
+          </div>
+        </div>
+        <div class="mini-header">
+          <div class="mini-title">&#9733; ZOOZI &#9733;</div>
+          <div class="mini-subtitle">zoozi.app</div>
+        </div>
+        <div class="mini-timer">
+          <div class="mini-timer-display">00:39</div>
+        </div>
+        <div class="mini-divider"></div>
+        <div class="mini-rows">
+          <div class="mini-row r1">
+            <span class="mini-medal">&#129351;</span>
+            <div class="mini-avatar"></div>
+            <span class="mini-name">NightO...</span>
+            <div class="mini-coins">
+              <span class="mini-coin-val">45,000</span>
+              <div class="mini-coin-icon">$</div>
+            </div>
+          </div>
+          <div class="mini-row r2">
+            <span class="mini-medal">&#129352;</span>
+            <div class="mini-avatar"></div>
+            <span class="mini-name">xX_Shad...</span>
+            <div class="mini-coins">
+              <span class="mini-coin-val">1,000</span>
+              <div class="mini-coin-icon">$</div>
+            </div>
+          </div>
+          <div class="mini-row r3">
+            <span class="mini-medal">&#129353;</span>
+            <div class="mini-avatar"></div>
+            <span class="mini-name">sparkle.qu...</span>
+            <div class="mini-coins">
+              <span class="mini-coin-val">100</span>
+              <div class="mini-coin-icon">$</div>
+            </div>
+          </div>
+        </div>
+        <div class="mini-footer">Total participants: 3</div>
+      </div>
+    </section>
+
+    <!-- Tagline -->
+    <section style="padding: 20px 0 40px;">
+      <h2 class="section-title">
+        ALL-IN-ONE AUCTION<br>OVERLAY FOR TIKTOK <span class="highlight">CREATORS</span>
+      </h2>
+      <p class="section-subtitle">Real-time bid tracking, snipe protection, and a board that makes your audience compete.</p>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+      <h2 class="section-title">CHOOSE YOUR <span class="highlight">PLAN</span></h2>
+      <p class="section-subtitle">Start auctioning in under 2 minutes. No credit card required for free tier.</p>
+      <div class="pricing-grid">
+        <!-- Monthly -->
+        <div class="pricing-card">
+          <div class="pricing-name">Creator Monthly</div>
+          <div class="pricing-price">$10<span>/mo</span></div>
+          <div class="pricing-period">Billed monthly. Cancel anytime.</div>
+          <ul class="pricing-features">
+            <li><span class="check">&#10003;</span> Full Auction Board overlay</li>
+            <li><span class="check">&#10003;</span> Snipe delay &amp; anti-snipe</li>
+            <li><span class="check">&#10003;</span> Custom branding &amp; colors</li>
+            <li><span class="check">&#10003;</span> Real-time TikTok gift sync</li>
+            <li><span class="check">&#10003;</span> Priority Discord support</li>
+          </ul>
+          <button class="pricing-btn secondary">Get Started</button>
+        </div>
+        <!-- Lifetime -->
+        <div class="pricing-card featured">
+          <div class="pricing-name">Creator Lifetime</div>
+          <div class="pricing-price">$20</div>
+          <div class="pricing-period">One-time payment. Yours forever.</div>
+          <ul class="pricing-features">
+            <li><span class="check">&#10003;</span> Everything in Monthly</li>
+            <li><span class="check">&#10003;</span> Lifetime updates included</li>
+            <li><span class="check">&#10003;</span> Early access to new features</li>
+            <li><span class="check">&#10003;</span> VIP Discord role</li>
+            <li><span class="check">&#10003;</span> Save $100+ vs monthly</li>
+          </ul>
+          <button class="pricing-btn primary">Get Lifetime Access</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+      &copy; 2026 zoozi.app — All rights reserved.
+    </div>
+  </main>
+</div>
+
+<script>
+// Generate stars
+const bg = document.getElementById('space-bg');
+for (let i = 0; i < 80; i++) {
+  const star = document.createElement('div');
+  star.className = 'star';
+  star.style.left = Math.random() * 100 + '%';
+  star.style.top = Math.random() * 100 + '%';
+  star.style.animationDelay = (Math.random() * 5) + 's';
+  star.style.animationDuration = (2 + Math.random() * 4) + 's';
+  star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+  bg.appendChild(star);
+}
+// Generate sparkles
+const sparkleChars = ['&#10022;', '&#10023;', '&#10024;', '&#10025;'];
+for (let i = 0; i < 12; i++) {
+  const s = document.createElement('div');
+  s.className = 'sparkle';
+  s.innerHTML = sparkleChars[Math.floor(Math.random() * sparkleChars.length)];
+  s.style.left = (10 + Math.random() * 80) + '%';
+  s.style.top = (5 + Math.random() * 80) + '%';
+  s.style.animationDelay = (Math.random() * 6) + 's';
+  s.style.animationDuration = (4 + Math.random() * 4) + 's';
+  s.style.fontSize = (10 + Math.random() * 10) + 'px';
+  s.style.color = ['#facc15', '#8b5cf6', '#2dd4bf', '#ec4899'][Math.floor(Math.random() * 4)];
+  bg.appendChild(s);
+}
+</script>
+</body>
+</html>

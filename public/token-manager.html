@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Manager — zoozi.app</title>
+<style>
+  :root {
+    --bg: #0a0814;
+    --card: #12101e;
+    --pill: #1e1a33;
+    --text: #ffffff;
+    --dim: #8a879e;
+    --purple: #8b5cf6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --gold: #facc15;
+    --border: rgba(139, 92, 246, 0.2);
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Login */
+  .login-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 36px;
+    width: 380px;
+    text-align: center;
+  }
+  .login-card h1 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--purple), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .login-card p { font-size: 13px; color: var(--dim); margin-bottom: 24px; }
+  .login-card input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--pill);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    margin-bottom: 16px;
+  }
+  .login-card input:focus { border-color: var(--purple); }
+  .login-card button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--purple), #6366f1);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .login-card button:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+  .login-error {
+    color: var(--red);
+    font-size: 12px;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  /* Dashboard */
+  .dashboard { display: none; }
+  .dashboard.active { display: block; }
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dash-header h2 {
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--purple), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .dash-header a {
+    color: var(--dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .dash-header a:hover { color: var(--text); }
+  .dash-body { padding: 30px; max-width: 800px; margin: 0 auto; }
+
+  /* Generate Form */
+  .gen-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .gen-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--purple);
+  }
+  .gen-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .gen-row > * { flex: 1; }
+  .gen-row label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+  .gen-row input, .gen-row select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--pill);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+  }
+  .gen-row input:focus, .gen-row select:focus { border-color: var(--purple); }
+  .gen-btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    background: var(--green);
+    color: #000;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .gen-btn:hover { box-shadow: 0 0 12px rgba(34, 197, 94, 0.4); }
+
+  /* Generated Token Display */
+  .token-display {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: var(--pill);
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    font-size: 13px;
+    word-break: break-all;
+  }
+  .token-display .token-label { color: var(--dim); font-size: 11px; margin-bottom: 6px; }
+  .token-display .token-value { color: var(--green); font-weight: 700; font-family: monospace; font-size: 14px; }
+  .token-display .token-url { color: var(--dim); font-size: 11px; margin-top: 8px; word-break: break-all; }
+  .token-display .token-url span { color: var(--gold); }
+
+  /* Token List */
+  .list-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .list-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--purple);
+  }
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .token-table th {
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .token-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+    vertical-align: middle;
+  }
+  .token-table .token-mono {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--green);
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .token-table .type-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .type-badge.overlay { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+  .type-badge.admin { background: rgba(250, 204, 21, 0.15); color: var(--gold); }
+  .revoke-btn {
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--red);
+    background: transparent;
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .revoke-btn:hover { background: var(--red); color: #fff; }
+  .empty-msg {
+    text-align: center;
+    padding: 30px;
+    color: var(--dim);
+    font-size: 13px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    background: var(--card);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <h1>&#128272; Token Manager</h1>
+    <p>Enter master password to manage access tokens</p>
+    <div class="login-error" id="login-error">Invalid password</div>
+    <input type="password" id="login-pw" placeholder="Master password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Unlock</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard" id="dashboard">
+  <div class="dash-header">
+    <h2>&#128273; Token Manager</h2>
+    <a href="/">&larr; Back to zoozi.app</a>
+  </div>
+  <div class="dash-body">
+    <!-- Generate -->
+    <div class="gen-card">
+      <h3>&#10024; Generate New Token</h3>
+      <div class="gen-row">
+        <div>
+          <label>Label</label>
+          <input type="text" id="gen-label" placeholder="e.g. My Overlay">
+        </div>
+        <div>
+          <label>Type</label>
+          <select id="gen-type">
+            <option value="overlay">Overlay</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <button class="gen-btn" onclick="generateToken()">Generate Token</button>
+      <div class="token-display" id="token-display">
+        <div class="token-label">Token generated:</div>
+        <div class="token-value" id="token-value"></div>
+        <div class="token-url">Overlay URL: <span id="token-url-overlay"></span></div>
+        <div class="token-url">Admin URL: <span id="token-url-admin"></span></div>
+      </div>
+    </div>
+
+    <!-- Token List -->
+    <div class="list-card">
+      <h3>&#128203; All Tokens</h3>
+      <div id="token-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Done!</div>
+
+<script>
+let masterPw = "";
+
+function doLogin() {
+  masterPw = document.getElementById("login-pw").value;
+  fetch("/api/tokens/list", {
+    headers: { "X-Master-Password": masterPw }
+  })
+  .then(r => { if (!r.ok) throw "bad"; return r.json(); })
+  .then(data => {
+    document.getElementById("login-wrap").style.display = "none";
+    document.getElementById("dashboard").classList.add("active");
+    renderTokens(data.tokens);
+  })
+  .catch(() => {
+    document.getElementById("login-error").style.display = "block";
+  });
+}
+
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2000);
+}
+
+function generateToken() {
+  const label = document.getElementById("gen-label").value.trim() || "Unnamed";
+  const type = document.getElementById("gen-type").value;
+  fetch("/api/tokens/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Master-Password": masterPw },
+    body: JSON.stringify({ label, type })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById("token-value").textContent = data.token;
+      document.getElementById("token-url-overlay").textContent = location.origin + "/overlay?token=" + data.token;
+      document.getElementById("token-url-admin").textContent = location.origin + "/admin?token=" + data.token;
+      document.getElementById("token-display").style.display = "block";
+      document.getElementById("gen-label").value = "";
+      toast("Token created!");
+      refreshList();
+    }
+  });
+}
+
+function revokeToken(token) {
+  if (!confirm("Revoke this token?")) return;
+  fetch("/api/tokens/revoke", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Master-Password": masterPw },
+    body: JSON.stringify({ token })
+  })
+  .then(r => r.json())
+  .then(() => {
+    toast("Token revoked");
+    refreshList();
+  });
+}
+
+function refreshList() {
+  fetch("/api/tokens/list", {
+    headers: { "X-Master-Password": masterPw }
+  })
+  .then(r => r.json())
+  .then(data => renderTokens(data.tokens));
+}
+
+function renderTokens(tokens) {
+  const el = document.getElementById("token-list");
+  if (!tokens || tokens.length === 0) {
+    el.innerHTML = '<div class="empty-msg">No tokens yet. Generate one above.</div>';
+    return;
+  }
+  el.innerHTML = '<table class="token-table"><thead><tr><th>Label</th><th>Type</th><th>Token</th><th>Created</th><th>Status</th><th></th></tr></thead><tbody>' +
+    tokens.map(t => '<tr>' +
+      '<td>' + esc(t.label) + '</td>' +
+      '<td><span class="type-badge ' + t.type + '">' + t.type + '</span></td>' +
+      '<td class="token-mono" title="' + t.token + '">' + t.token + '</td>' +
+      '<td style="color:var(--dim);font-size:12px;">' + new Date(t.created).toLocaleDateString() + '</td>' +
+      '<td style="color:' + (t.active ? 'var(--green)' : 'var(--red)') + ';font-weight:600;font-size:12px;">' + (t.active ? 'Active' : 'Revoked') + '</td>' +
+      '<td>' + (t.active ? '<button class="revoke-btn" onclick="revokeToken(\'' + t.token + '\')">Revoke</button>' : '') + '</td>' +
+    '</tr>').join('') +
+    '</tbody></table>';
+}
+
+function esc(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

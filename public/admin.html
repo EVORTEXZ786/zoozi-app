@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auction Admin Panel</title>
+<style>
+  :root {
+    --accent: #a855f7;
+    --accent-secondary: #6366f1;
+    --text: #e4e4e7;
+    --text-dim: #71717a;
+    --bg: #0c0a14;
+    --bg-card: #16102a;
+    --bg-input: #1e1440;
+    --border: rgba(168, 85, 247, 0.25);
+    --border-hover: rgba(168, 85, 247, 0.5);
+    --radius: 12px;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-header .overlay-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    transition: all 0.2s;
+  }
+  .page-header .overlay-link:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    max-width: 1200px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-hover); }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 16px; }
+
+  .form-group { margin-bottom: 12px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+  input[type="text"], input[type="number"], input[type="color"], select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  input[type="color"] {
+    height: 40px;
+    padding: 4px;
+    cursor: pointer;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+  .row > * { flex: 1; }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { box-shadow: 0 0 16px rgba(168, 85, 247, 0.4); transform: translateY(-1px); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+  .btn-warning { background: var(--warning); color: #1a1a1a; }
+  .btn-warning:hover { box-shadow: 0 0 16px rgba(245, 158, 11, 0.4); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--accent); }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .timer-display {
+    font-size: 36px;
+    font-weight: 900;
+    text-align: center;
+    padding: 14px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 3px;
+  }
+  .timer-display.running { color: var(--success); }
+  .timer-display.paused { color: var(--warning); }
+
+  .status-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .status-dot.on { background: var(--success); box-shadow: 0 0 8px var(--success); }
+  .status-dot.off { background: var(--danger); }
+
+  .search-results {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 6px;
+    background: var(--bg-input);
+  }
+  .search-results::-webkit-scrollbar { width: 4px; }
+  .search-results::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+  .search-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .search-item:hover { background: rgba(168, 85, 247, 0.1); }
+  .search-item img {
+    width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+    border: 1px solid var(--border);
+  }
+  .search-item .item-name { font-weight: 600; }
+  .search-item .item-coins { color: var(--text-dim); font-size: 11px; margin-left: auto; }
+
+  .color-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .color-row label {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .color-row input[type="color"] {
+    width: 40px;
+    height: 32px;
+    flex: 0;
+  }
+  .color-row input[type="text"] {
+    width: 80px;
+    flex: 0;
+    text-align: center;
+    font-size: 11px;
+    font-family: monospace;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid var(--success);
+    color: var(--success);
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>&#127942; AUCTION ADMIN</h1>
+  <a class="overlay-link" href="/overlay" target="_blank">&#128187; Open Overlay</a>
+</div>
+
+<div class="grid">
+  <!-- TikTok Connection -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128225;</span> TikTok Connection</div>
+    <div class="form-group">
+      <label>Live Stream Username</label>
+      <div class="row">
+        <input type="text" id="tiktok-user" placeholder="@username or username">
+        <button class="btn btn-success btn-sm" id="btn-connect" onclick="connectTikTok()">Connect</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text-dim);">
+      <span class="status-dot off" id="status-dot"></span>
+      <span id="status-text">Disconnected</span>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn btn-danger btn-sm" onclick="disconnectTikTok()">Disconnect</button>
+    </div>
+  </div>
+
+  <!-- Timer Controls -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#9201;</span> Auction Timer</div>
+    <div class="timer-display" id="timer-display">02:00</div>
+    <div class="form-group">
+      <label>Duration (seconds)</label>
+      <input type="number" id="timer-duration" value="120" min="10" max="3600">
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success btn-sm" onclick="startTimer()">&#9654; Start</button>
+      <button class="btn btn-warning btn-sm" onclick="pauseTimer()">&#10074;&#10074; Pause</button>
+      <button class="btn btn-outline btn-sm" onclick="resetTimer()">&#8634; Reset</button>
+    </div>
+  </div>
+
+  <!-- Snipe Delay -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#9889;</span> Snipe Delay (Anti-Snipe)</div>
+    <div class="form-group">
+      <label>Enabled</label>
+      <select id="snipe-enabled" onchange="updateSnipe()">
+        <option value="false">Disabled</option>
+        <option value="true">Enabled</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Extra Time (sec)</label>
+        <input type="number" id="snipe-seconds" value="30" min="5" max="120" onchange="updateSnipe()">
+      </div>
+      <div class="form-group">
+        <label>Trigger Threshold (sec)</label>
+        <input type="number" id="snipe-threshold" value="10" min="3" max="60" onchange="updateSnipe()">
+      </div>
+    </div>
+    <button class="btn btn-warning btn-sm" onclick="addSnipeTime()">&#10133; Force Add Time</button>
+  </div>
+
+  <!-- Badge / Vouches -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#10024;</span> Status Badge / Vouches</div>
+    <div class="form-group">
+      <label>Badge Text</label>
+      <input type="text" id="badge-text" value="538 VOUCHES" placeholder="e.g. 538 VOUCHES">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="updateBadge()">&#10003; Update Badge</button>
+  </div>
+
+  <!-- Branding -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#127991;</span> Overlay Branding</div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="brand-title" value="ZOOZI" placeholder="e.g. ZOOZI">
+    </div>
+    <div class="form-group">
+      <label>Subtitle</label>
+      <input type="text" id="brand-subtitle" value="Place your bids with gifts!" placeholder="Subtitle text">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="updateBranding()">&#10003; Update Branding</button>
+  </div>
+
+  <!-- Manual Leaderboard -->
+  <div class="card" style="grid-column: span 1;">
+    <div class="card-title"><span class="icon">&#128200;</span> Manual Leaderboard</div>
+    <div class="form-group">
+      <label>Search Existing Bidder</label>
+      <input type="text" id="search-bidder" placeholder="Type to search..." oninput="searchBidders()">
+      <div class="search-results" id="search-results" style="display:none;"></div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div class="form-group">
+        <label>Or Enter Username</label>
+        <input type="text" id="manual-username" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <label>Profile Image URL (optional)</label>
+        <input type="text" id="manual-avatar" placeholder="https://...">
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Add Coins</label>
+        <input type="number" id="manual-coins-add" value="100" min="1">
+      </div>
+      <div class="form-group">
+        <label>Subtract Coins</label>
+        <input type="number" id="manual-coins-sub" value="100" min="1">
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success btn-sm" onclick="addManualBid()">+ Add Coins</button>
+      <button class="btn btn-warning btn-sm" onclick="subtractManualBid()">&#8722; Subtract</button>
+      <button class="btn btn-danger btn-sm" onclick="removeSelectedBidder()">&#10005; Remove</button>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn btn-danger btn-sm" onclick="resetBids()">&#9888; Reset All Bids</button>
+    </div>
+  </div>
+
+  <!-- Theme Customizer -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#127912;</span> Theme Customizer</div>
+    <div class="color-row">
+      <label>Accent</label>
+      <input type="color" id="th-accent" value="#a855f7" onchange="syncColor('th-accent')">
+      <input type="text" id="th-accent-hex" value="#a855f7" onchange="syncPicker('th-accent')">
+    </div>
+    <div class="color-row">
+      <label>Accent Secondary</label>
+      <input type="color" id="th-accentSecondary" value="#6366f1" onchange="syncColor('th-accentSecondary')">
+      <input type="text" id="th-accentSecondary-hex" value="#6366f1" onchange="syncPicker('th-accentSecondary')">
+    </div>
+    <div class="color-row">
+      <label>Timer Color</label>
+      <input type="color" id="th-timerColor" value="#facc15" onchange="syncColor('th-timerColor')">
+      <input type="text" id="th-timerColor-hex" value="#facc15" onchange="syncPicker('th-timerColor')">
+    </div>
+    <div class="color-row">
+      <label>Text Primary</label>
+      <input type="color" id="th-textPrimary" value="#ffffff" onchange="syncColor('th-textPrimary')">
+      <input type="text" id="th-textPrimary-hex" value="#ffffff" onchange="syncPicker('th-textPrimary')">
+    </div>
+    <div class="color-row">
+      <label>Text Secondary</label>
+      <input type="color" id="th-textSecondary" value="#a1a1aa" onchange="syncColor('th-textSecondary')">
+      <input type="text" id="th-textSecondary-hex" value="#a1a1aa" onchange="syncPicker('th-textSecondary')">
+    </div>
+    <div class="color-row">
+      <label>Border Glow</label>
+      <input type="color" id="th-borderGlow" value="#a855f7" onchange="syncColor('th-borderGlow')">
+      <input type="text" id="th-borderGlow-hex" value="#a855f7" onchange="syncPicker('th-borderGlow')">
+    </div>
+    <div class="color-row">
+      <label>Background Primary</label>
+      <input type="color" id="th-bgPrimary" value="#0f0a19" onchange="syncColor('th-bgPrimary')">
+      <input type="text" id="th-bgPrimary-hex" value="#0f0a19" onchange="syncPicker('th-bgPrimary')">
+    </div>
+    <div class="color-row">
+      <label>Pill Background</label>
+      <input type="color" id="th-pillBg" value="#281446" onchange="syncColor('th-pillBg')">
+      <input type="text" id="th-pillBg-hex" value="#281446" onchange="syncPicker('th-pillBg')">
+    </div>
+    <div class="form-group">
+      <label>Overlay Opacity: <span id="opacity-val">1.0</span></label>
+      <input type="range" id="th-overlayOpacity" min="0.1" max="1" step="0.05" value="1" style="width:100%;" oninput="document.getElementById('opacity-val').textContent=this.value">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="applyTheme()">&#10003; Apply Theme</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Saved!</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let selectedBidder = null;
+let allBidders = [];
+
+function send(msg) {
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+}
+
+function toast(msg) {
+  $("toast").textContent = msg;
+  $("toast").classList.add("show");
+  setTimeout(() => $("toast").classList.remove("show"), 2000);
+}
+
+// --- TikTok ---
+function connectTikTok() {
+  const username = $("tiktok-user").value.trim().replace("@", "");
+  if (!username) return;
+  send({ type: "admin_connect_tiktok", username });
+}
+function disconnectTikTok() {
+  send({ type: "admin_disconnect" });
+}
+
+// --- Timer ---
+function startTimer() {
+  send({ type: "timer_start", duration: parseInt($("timer-duration").value) || 120 });
+}
+function pauseTimer() {
+  send({ type: "timer_pause" });
+}
+function resetTimer() {
+  send({ type: "timer_reset", seconds: parseInt($("timer-duration").value) || 120 });
+}
+
+// --- Snipe ---
+function updateSnipe() {
+  send({
+    type: "snipe_delay_update",
+    enabled: $("snipe-enabled").value === "true",
+    seconds: parseInt($("snipe-seconds").value) || 30,
+    threshold: parseInt($("snipe-threshold").value) || 10,
+  });
+}
+function addSnipeTime() {
+  send({ type: "add_snipe_time" });
+}
+
+// --- Badge ---
+function updateBadge() {
+  send({ type: "badge_update", text: $("badge-text").value });
+  toast("Badge updated!");
+}
+
+// --- Branding ---
+function updateBranding() {
+  send({ type: "branding_update", title: $("brand-title").value, subtitle: $("brand-subtitle").value });
+  toast("Branding updated!");
+}
+
+// --- Search ---
+function searchBidders() {
+  const q = $("search-bidder").value.toLowerCase().trim();
+  const results = $("search-results");
+  if (!q) { results.style.display = "none"; return; }
+  const matches = allBidders.filter((b) => b.username.toLowerCase().includes(q));
+  if (matches.length === 0) { results.style.display = "none"; return; }
+  results.style.display = "block";
+  results.innerHTML = matches.map((b) => {
+    const pic = b.profilePic || "https://ui-avatars.com/api/?name=" + encodeURIComponent(b.username) + "&background=3b1f6e&color=fff&size=128";
+    return `<div class="search-item" onclick="selectBidder('${escapeAttr(b.username)}')">
+      <img src="${pic}" alt="">
+      <span class="item-name">${escapeHtml(b.username)}</span>
+      <span class="item-coins">${b.coins} coins</span>
+    </div>`;
+  }).join("");
+}
+function selectBidder(username) {
+  selectedBidder = username;
+  $("manual-username").value = username;
+  $("search-results").style.display = "none";
+  $("search-bidder").value = username;
+}
+
+function addManualBid() {
+  const u = selectedBidder || $("manual-username").value.trim();
+  if (!u) return toast("Enter a username");
+  send({ type: "manual_add", username: u, coins: parseInt($("manual-coins-add").value) || 100, profilePic: $("manual-avatar").value.trim() });
+  toast("Coins added to " + u);
+}
+function subtractManualBid() {
+  const u = selectedBidder || $("manual-username").value.trim();
+  if (!u) return toast("Enter a username");
+  send({ type: "manual_subtract", username: u, amount: parseInt($("manual-coins-sub").value) || 100 });
+  toast("Coins subtracted from " + u);
+}
+function removeSelectedBidder() {
+  const u = selectedBidder || $("manual-username").value.trim();
+  if (!u) return;
+  send({ type: "remove_bidder", username: u });
+  toast("Removed " + u);
+  selectedBidder = null;
+}
+function resetBids() {
+  if (!confirm("Reset all bids? This cannot be undone.")) return;
+  send({ type: "reset_bids" });
+  toast("All bids reset");
+}
+
+// --- Theme ---
+const colorFields = ["accent", "accentSecondary", "timerColor", "textPrimary", "textSecondary", "borderGlow", "bgPrimary", "pillBg"];
+function syncColor(baseId) {
+  $(baseId + "-hex").value = $(baseId).value;
+}
+function syncPicker(baseId) {
+  const hex = $(baseId + "-hex").value;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) $(baseId).value = hex;
+}
+function applyTheme() {
+  const theme = {};
+  colorFields.forEach((f) => {
+    const hex = $(`th-${f}-hex`).value;
+    const alpha = f === "bgPrimary" || f === "pillBg" ? "e6" : "ff";
+    theme[f] = hex + alpha;
+    if (f === "borderGlow") theme[f] = hex + "80";
+  });
+  theme.overlayOpacity = parseFloat($("th-overlayOpacity").value);
+  send({ type: "theme_update", theme });
+  toast("Theme applied!");
+}
+
+function escapeHtml(str) { const d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
+function escapeAttr(str) { return str.replace(/'/g, "\\'"); }
+
+// --- WebSocket ---
+const ws = new WebSocket((location.protocol === "https:" ? "wss:" : "ws:") + "//" + location.host);
+
+ws.onmessage = (e) => {
+  const data = JSON.parse(e.data);
+  switch (data.type) {
+    case "init":
+      if (data.connected) {
+        $("status-dot").className = "status-dot on";
+        $("status-text").textContent = "Connected to " + data.targetUser;
+        $("tiktok-user").value = data.targetUser;
+      }
+      if (data.timer) {
+        $("timer-duration").value = data.timer.total;
+        $("timer-display").textContent = formatTime(data.timer.remaining);
+        $("timer-display").className = "timer-display " + (data.timer.running ? "running" : "paused");
+      }
+      if (data.snipeDelay) {
+        $("snipe-enabled").value = String(data.snipeDelay.enabled);
+        $("snipe-seconds").value = data.snipeDelay.seconds;
+        $("snipe-threshold").value = data.snipeDelay.threshold;
+      }
+      if (data.badge) $("badge-text").value = data.badge.text;
+      if (data.branding) {
+        $("brand-title").value = data.branding.title;
+        $("brand-subtitle").value = data.branding.subtitle;
+      }
+      if (data.bidders) {
+        allBidders = data.bidders;
+      }
+      break;
+
+    case "connection_status":
+      if (data.connected) {
+        $("status-dot").className = "status-dot on";
+        $("status-text").textContent = "Connected to " + (data.username || "live stream");
+      } else {
+        $("status-dot").className = "status-dot off";
+        $("status-text").textContent = data.error || "Disconnected";
+      }
+      break;
+
+    case "timer_tick":
+    case "timer_sync":
+      $("timer-display").textContent = formatTime(data.remaining);
+      $("timer-display").className = "timer-display " + (data.running !== undefined ? (data.running ? "running" : "paused") : "running");
+      break;
+
+    case "timer_end":
+      $("timer-display").textContent = "00:00";
+      $("timer-display").className = "timer-display paused";
+      break;
+
+    case "bid_update":
+      allBidders = data.bidders;
+      break;
+  }
+};
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+}
+</script>
+</body>
+</html>

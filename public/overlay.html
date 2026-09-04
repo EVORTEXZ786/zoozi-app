@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auction Overlay</title>
+<style>
+  :root {
+    --bg-pill: rgba(28, 25, 48, 0.92);
+    --bg-board: rgba(18, 15, 32, 0.95);
+    --bg-row: rgba(32, 28, 55, 0.85);
+    --text: #ffffff;
+    --text-dim: #8a879e;
+    --gold: #facc15;
+    --green: #22c55e;
+    --purple: #8b5cf6;
+    --avatar-bg: #4c1d95;
+    --border-glow: rgba(139, 92, 246, 0.2);
+    --board-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    width: 380px;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .overlay {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  /* ========== STATUS PILLS ========== */
+  .pills {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 50px;
+    background: var(--bg-pill);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    width: 100%;
+  }
+  .pill-icon { font-size: 15px; }
+  .pill-badge {
+    margin-left: auto;
+    background: var(--green);
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 50px;
+  }
+
+  /* ========== MAIN BOARD ========== */
+  .board {
+    background: var(--bg-board);
+    border-radius: 20px;
+    padding: 28px 20px 18px;
+    box-shadow: var(--board-shadow);
+    border: 1px solid var(--border-glow);
+    min-height: 420px;
+  }
+
+  /* ========== HEADER ========== */
+  .board-header {
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  .board-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-shadow: 0 0 18px rgba(250, 204, 21, 0.6);
+  }
+  .board-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+  }
+
+  /* ========== TIMER ========== */
+  .timer-section {
+    text-align: center;
+    padding: 20px 0 28px;
+  }
+  .timer-display {
+    font-size: 68px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 6px;
+    color: #fef9c3;
+    text-shadow: 0 0 20px rgba(250, 204, 21, 0.5), 0 0 40px rgba(250, 204, 21, 0.25);
+    line-height: 1;
+  }
+  .timer-display.urgent {
+    color: #fecaca;
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+  }
+
+  /* ========== LEADERBOARD ========== */
+  .leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--text-dim);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ========== BIDDER ROW ========== */
+  .bidder-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-row);
+    border-radius: 50px;
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    animation: fade-in 0.3s ease;
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .bidder-row.rank-1 {
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.12) 0%, var(--bg-row) 50%);
+    border-color: rgba(250, 204, 21, 0.25);
+  }
+  .bidder-row.rank-2 {
+    background: linear-gradient(90deg, rgba(148, 163, 184, 0.1) 0%, var(--bg-row) 50%);
+    border-color: rgba(148, 163, 184, 0.2);
+  }
+  .bidder-row.rank-3 {
+    background: linear-gradient(90deg, rgba(217, 119, 6, 0.1) 0%, var(--bg-row) 50%);
+    border-color: rgba(217, 119, 6, 0.2);
+  }
+
+  /* Medal */
+  .medal {
+    font-size: 16px;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--avatar-bg);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .avatar-letter {
+    font-size: 15px;
+    font-weight: 700;
+    color: #c4b5fd;
+  }
+
+  /* Name */
+  .bidder-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Coins */
+  .bidder-coins {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .coin-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .coin-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fde68a, #eab308 60%, #ca8a04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 900;
+    color: #422006;
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.5);
+  }
+
+  /* ========== FOOTER ========== */
+  .board-footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ========== GIFT TOAST ========== */
+  .gift-toast {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-70px);
+    background: var(--bg-pill);
+    border: 1px solid var(--border-glow);
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 100;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+  }
+  .gift-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .toast-user { color: var(--purple); }
+  .toast-gift { color: var(--gold); }
+
+  /* ========== SNIPE ALERT ========== */
+  .snipe-alert {
+    text-align: center;
+    padding: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--purple);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    animation: blink 1s ease infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+</style>
+</head>
+<body>
+<div class="overlay">
+
+  <!-- STATUS PILLS -->
+  <div class="pills">
+    <div class="pill">
+      <span class="pill-icon">&#11088;</span>
+      <span id="badge-text">538 VOUCHES</span>
+    </div>
+    <div class="pill">
+      <span class="pill-icon" style="color:#22c55e;">&#10003;</span>
+      <span id="minimum-text">NO MINIMUM</span>
+    </div>
+    <div class="pill">
+      <span class="pill-icon" style="color:#22c55e;">&#127760;</span>
+      <span>SNIPE DELAY</span>
+      <span class="pill-badge" id="snipe-badge">30s</span>
+    </div>
+  </div>
+
+  <!-- SNIPE ALERT -->
+  <div class="snipe-alert" id="snipe-alert" style="display:none;">
+    &#9889; SNIPE WINDOW &#9889;
+  </div>
+
+  <!-- MAIN BOARD -->
+  <div class="board">
+    <div class="board-header">
+      <div class="board-title">
+        <span>&#9733;</span>
+        <span id="branding-title"> ZOOZI </span>
+        <span>&#9733;</span>
+      </div>
+      <div class="board-subtitle" id="branding-subtitle">ZOOZI.APP</div>
+    </div>
+
+    <div class="timer-section">
+      <div class="timer-display" id="timer-display">00:00</div>
+    </div>
+
+    <div class="leaderboard" id="leaderboard">
+      <div class="empty-state">Waiting for bids...</div>
+    </div>
+
+    <div class="board-footer">
+      Total participants: <span id="participant-count">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- Gift Toast -->
+<div class="gift-toast" id="gift-toast">
+  <span class="toast-user" id="toast-user"></span> sent <span class="toast-gift" id="toast-gift"></span> &#9733;
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let toastTimer, totalTimer = 120;
+
+function formatTime(s) {
+  return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+}
+
+function renderLeaderboard(bidders) {
+  const el = $("leaderboard");
+  if (!bidders || bidders.length === 0) {
+    el.innerHTML = '<div class="empty-state">Waiting for bids...</div>';
+    return;
+  }
+  const medals = { 1: "&#129351;", 2: "&#129352;", 3: "&#129353;" };
+  el.innerHTML = bidders.map(b => {
+    const rc = b.rank <= 3 ? " rank-" + b.rank : "";
+    const medal = medals[b.rank] || "#" + b.rank;
+    const def = "https://ui-avatars.com/api/?name=" + encodeURIComponent(b.username) + "&background=4c1d95&color=c4b5fd&size=128&bold=true";
+    const pic = b.profilePic || def;
+    return '<div class="bidder-row' + rc + '">' +
+      '<span class="medal">' + medal + '</span>' +
+      '<div class="avatar"><img src="' + pic + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="avatar-letter" style="display:none">' + esc(b.username[0]) + '</span></div>' +
+      '<span class="bidder-name">' + esc(b.username) + '</span>' +
+      '<div class="bidder-coins"><span class="coin-value">' + b.coins.toLocaleString() + '</span><div class="coin-icon">$</div></div>' +
+    '</div>';
+  }).join("");
+}
+
+function showToast(u, g) {
+  $("toast-user").textContent = u;
+  $("toast-gift").textContent = g;
+  $("gift-toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("gift-toast").classList.remove("show"), 3000);
+}
+
+function esc(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+const ws = new WebSocket((location.protocol === "https:" ? "wss:" : "ws:") + "//" + location.host);
+ws.onmessage = e => {
+  const d = JSON.parse(e.data);
+  switch (d.type) {
+    case "init":
+      if (d.badge) $("badge-text").textContent = d.badge.text;
+      if (d.snipeDelay) $("snipe-badge").textContent = d.snipeDelay.seconds + "s";
+      if (d.branding && d.branding.title) $("branding-title").textContent = " " + d.branding.title + " ";
+      if (d.branding && d.branding.subtitle) $("branding-subtitle").textContent = d.branding.subtitle;
+      if (d.timer) { totalTimer = d.timer.total || d.timer.remaining; $("timer-display").textContent = formatTime(d.timer.remaining); }
+      if (d.bidders) renderLeaderboard(d.bidders);
+      if (d.participantCount !== undefined) $("participant-count").textContent = d.participantCount;
+      break;
+    case "timer_tick":
+      $("timer-display").textContent = formatTime(d.remaining);
+      $("timer-display").classList.toggle("urgent", d.remaining <= 10);
+      break;
+    case "timer_sync":
+      totalTimer = d.remaining;
+      $("timer-display").textContent = formatTime(d.remaining);
+      $("timer-display").classList.remove("urgent");
+      break;
+    case "timer_end":
+      $("timer-display").textContent = "00:00";
+      $("timer-display").classList.add("urgent");
+      break;
+    case "bid_update":
+      renderLeaderboard(d.bidders);
+      $("participant-count").textContent = d.participantCount;
+      break;
+    case "gift_received":
+      showToast(d.username, d.gift);
+      break;
+    case "snipe_alert":
+      $("snipe-alert").style.display = "block";
+      setTimeout(() => $("snipe-alert").style.display = "none", 5000);
+      break;
+    case "snipe_extend":
+      totalTimer = d.remaining;
+      $("timer-display").textContent = formatTime(d.remaining);
+      break;
+    case "badge_sync":
+      $("badge-text").textContent = d.badge.text;
+      break;
+    case "branding_sync":
+      if (d.branding.title) $("branding-title").textContent = " " + d.branding.title + " ";
+      if (d.branding.subtitle) $("branding-subtitle").textContent = d.branding.subtitle;
+      break;
+    case "snipe_config":
+      $("snipe-badge").textContent = d.snipeDelay.seconds + "s";
+      break;
+  }
+};
+</script>
+</body>
+</html>
