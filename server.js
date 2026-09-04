@@ -368,7 +368,7 @@ async function connectToTikTok(username) {
 
   try {
     const { TikTokLiveConnection } = require("tiktok-live-connector");
-    tiktokClient = new TikTokLiveConnection(username);
+    tiktokClient = new TikTokLiveConnection(username, {});
 
     tiktokClient.connect().then((state_info) => {
       state.connected = true;
