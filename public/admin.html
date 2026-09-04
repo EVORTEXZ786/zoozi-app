@@ -33,32 +33,151 @@
   }
 
   /* ===== ANIMATED BACKGROUND ===== */
-  .bg-glow {
+  .bg-layer {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: 0;
     pointer-events: none;
+    overflow: hidden;
   }
-  .bg-glow::before {
-    content: '';
+
+  /* Floating glow orbs */
+  .bg-orb {
     position: absolute;
-    top: -30%; left: -20%;
-    width: 60%; height: 80%;
-    background: radial-gradient(ellipse, rgba(239, 68, 68, 0.06) 0%, transparent 70%);
-    animation: bgDrift 25s ease-in-out infinite;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: orbFloat 20s ease-in-out infinite;
   }
-  .bg-glow::after {
-    content: '';
-    position: absolute;
-    bottom: -20%; right: -10%;
-    width: 50%; height: 70%;
-    background: radial-gradient(ellipse, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
-    animation: bgDrift 30s ease-in-out infinite reverse;
-  }
-  @keyframes bgDrift {
+  .bg-orb.o1 { width: 500px; height: 500px; top: -15%; left: -10%; background: rgba(168, 85, 247, 0.08); animation-duration: 22s; }
+  .bg-orb.o2 { width: 400px; height: 400px; bottom: -10%; right: -5%; background: rgba(59, 130, 246, 0.07); animation-duration: 28s; animation-delay: -5s; }
+  .bg-orb.o3 { width: 350px; height: 350px; top: 40%; left: 50%; background: rgba(239, 68, 68, 0.05); animation-duration: 25s; animation-delay: -10s; }
+  .bg-orb.o4 { width: 300px; height: 300px; top: 10%; right: 30%; background: rgba(236, 72, 153, 0.04); animation-duration: 30s; animation-delay: -15s; }
+  @keyframes orbFloat {
     0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(5%, 3%) scale(1.1); }
+    25% { transform: translate(30px, -20px) scale(1.05); }
+    50% { transform: translate(-20px, 30px) scale(0.95); }
+    75% { transform: translate(15px, 15px) scale(1.02); }
   }
+
+  /* Grid overlay */
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+
+  /* Floating dots */
+  .bg-dot {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(168, 85, 247, 0.4);
+    animation: dotDrift 15s ease-in-out infinite;
+  }
+  @keyframes dotDrift {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+    25% { transform: translateY(-40px) translateX(20px); opacity: 0.6; }
+    50% { transform: translateY(-10px) translateX(-15px); opacity: 0.3; }
+    75% { transform: translateY(-50px) translateX(10px); opacity: 0.5; }
+  }
+
+  /* Animated diagonal lines */
+  .bg-lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .bg-lines .line {
+    position: absolute;
+    width: 200%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.06), transparent);
+    transform-origin: center;
+    animation: lineSweep 12s linear infinite;
+  }
+  .bg-lines .line:nth-child(1) { top: 20%; transform: rotate(-15deg); animation-duration: 18s; }
+  .bg-lines .line:nth-child(2) { top: 50%; transform: rotate(-15deg); animation-duration: 22s; animation-delay: -4s; }
+  .bg-lines .line:nth-child(3) { top: 80%; transform: rotate(-15deg); animation-duration: 20s; animation-delay: -8s; }
+  .bg-lines .line:nth-child(4) { top: 35%; transform: rotate(15deg); animation-duration: 25s; animation-delay: -2s; }
+  .bg-lines .line:nth-child(5) { top: 65%; transform: rotate(15deg); animation-duration: 19s; animation-delay: -7s; }
+  @keyframes lineSweep {
+    0% { transform: translateX(-50%) rotate(var(--r, -15deg)); }
+    100% { transform: translateX(50%) rotate(var(--r, -15deg)); }
+  }
+
+  /* Corner bracket decorations */
+  .bg-corner {
+    position: absolute;
+    width: 80px; height: 80px;
+    opacity: 0.08;
+  }
+  .bg-corner::before, .bg-corner::after {
+    content: '';
+    position: absolute;
+    background: var(--accent2);
+  }
+  .bg-corner::before { top: 0; left: 0; width: 100%; height: 2px; }
+  .bg-corner::after { top: 0; left: 0; width: 2px; height: 100%; }
+  .bg-corner.c-tl { top: 40px; left: 40px; }
+  .bg-corner.c-tr { top: 40px; right: 40px; transform: scaleX(-1); }
+  .bg-corner.c-bl { bottom: 40px; left: 40px; transform: scaleY(-1); }
+  .bg-corner.c-br { bottom: 40px; right: 40px; transform: scale(-1); }
+
+  /* Hexagon shapes */
+  .bg-hex {
+    position: absolute;
+    width: 60px; height: 35px;
+    background: rgba(168, 85, 247, 0.04);
+    opacity: 0;
+    animation: hexFloat 20s ease-in-out infinite;
+  }
+  .bg-hex::before, .bg-hex::after {
+    content: '';
+    position: absolute;
+    width: 0; height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+  }
+  .bg-hex::before {
+    bottom: 100%;
+    border-bottom: 17px solid rgba(168, 85, 247, 0.04);
+  }
+  .bg-hex::after {
+    top: 100%;
+    border-top: 17px solid rgba(168, 85, 247, 0.04);
+  }
+  @keyframes hexFloat {
+    0%, 100% { opacity: 0; transform: translateY(0) rotate(0deg); }
+    20% { opacity: 0.6; }
+    50% { opacity: 0.4; transform: translateY(-30px) rotate(10deg); }
+    80% { opacity: 0.6; }
+  }
+
+  /* Orbiting rings */
+  .bg-orbit {
+    position: absolute;
+    border: 1px solid rgba(59, 130, 246, 0.04);
+    border-radius: 50%;
+    animation: orbitSpin 30s linear infinite;
+  }
+  .bg-orbit.r1 { width: 600px; height: 600px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .bg-orbit.r2 { width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-direction: reverse; animation-duration: 25s; border-color: rgba(239, 68, 68, 0.03); }
+  .bg-orbit .orbit-dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent2);
+    top: -3px; left: 50%;
+    box-shadow: 0 0 10px var(--accent2);
+    opacity: 0.5;
+  }
+  .bg-orbit.r2 .orbit-dot { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  @keyframes orbitSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
   /* ===== LAYOUT ===== */
   .wrapper {
@@ -632,7 +751,25 @@
 </head>
 <body>
 
-<div class="bg-glow"></div>
+<div class="bg-layer">
+  <div class="bg-orb o1"></div>
+  <div class="bg-orb o2"></div>
+  <div class="bg-orb o3"></div>
+  <div class="bg-orb o4"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-lines">
+    <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+  </div>
+  <div class="bg-corner c-tl"></div>
+  <div class="bg-corner c-tr"></div>
+  <div class="bg-corner c-bl"></div>
+  <div class="bg-corner c-br"></div>
+  <div class="bg-hex" style="top:15%;left:8%;animation-delay:-3s;"></div>
+  <div class="bg-hex" style="top:60%;right:12%;animation-delay:-8s;"></div>
+  <div class="bg-hex" style="bottom:20%;left:15%;animation-delay:-13s;"></div>
+  <div class="bg-orbit r1"><div class="orbit-dot"></div></div>
+  <div class="bg-orbit r2"><div class="orbit-dot"></div></div>
+</div>
 
 <div class="wrapper">
   <!-- Header -->
@@ -1104,6 +1241,21 @@ ws.onmessage = e => {
 
 ws.onopen = () => toast("Connected to server");
 ws.onerror = () => toast("WebSocket error", true);
+
+// Floating background dots
+const bgLayer = document.querySelector('.bg-layer');
+const colors = ['#a855f7','#3b82f6','#ef4444','#ec4899','#06b6d4','#f59e0b'];
+for (let i = 0; i < 30; i++) {
+  const d = document.createElement('div');
+  d.className = 'bg-dot';
+  d.style.left = Math.random() * 100 + '%';
+  d.style.top = Math.random() * 100 + '%';
+  d.style.animationDelay = (Math.random() * 15) + 's';
+  d.style.animationDuration = (10 + Math.random() * 15) + 's';
+  d.style.background = colors[Math.floor(Math.random() * colors.length)];
+  d.style.width = d.style.height = (2 + Math.random() * 3) + 'px';
+  bgLayer.appendChild(d);
+}
 
 // JS border rotation per card
 document.querySelectorAll('.card').forEach(card => {
