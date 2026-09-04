@@ -367,8 +367,8 @@ async function connectToTikTok(username) {
   state.targetUser = username;
 
   try {
-    const { WebcastPushConnection } = require("tiktok-live-connector");
-    tiktokClient = new WebcastPushConnection(username, { enableRoomPolling: false });
+    const { TikTokLiveConnection } = require("tiktok-live-connector");
+    tiktokClient = new TikTokLiveConnection(username);
 
     tiktokClient.connect().then((state_info) => {
       state.connected = true;
@@ -382,7 +382,6 @@ async function connectToTikTok(username) {
       const giftName = data.giftName || "Gift";
       const coins = data.diamondCount || getGiftValue(giftName) * (data.repeatCount || 1);
       const user = data.uniqueId || data.nickname || "Anonymous";
-      // Use userDetails.profilePictureUrl (or its URL array), fall back to top-level field
       const pic =
         (data.userDetails && (data.userDetails.profilePictureUrl || (data.userDetails.profilePictureUrls && data.userDetails.profilePictureUrls[0]))) ||
         data.profilePictureUrl ||
