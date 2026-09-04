@@ -13,10 +13,11 @@
     --text-dim: #8a879e;
     --gold: #facc15;
     --green: #22c55e;
-    --purple: #8b5cf6;
-    --avatar-bg: #4c1d95;
-    --border-glow: rgba(139, 92, 246, 0.2);
-    --board-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --avatar-bg: #1e3a5f;
+    --border-glow: rgba(59, 130, 246, 0.2);
+    --board-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -135,7 +136,7 @@
     padding: 10px 14px;
     background: var(--bg-row);
     border-radius: 50px;
-    border: 1px solid rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.1);
     animation: fade-in 0.3s ease;
   }
   @keyframes fade-in {
@@ -253,7 +254,7 @@
     transform: translateX(-50%) translateY(0);
     opacity: 1;
   }
-  .toast-user { color: var(--purple); }
+  .toast-user { color: var(--blue); }
   .toast-gift { color: var(--gold); }
 
   /* ========== SNIPE ALERT ========== */
@@ -262,7 +263,7 @@
     padding: 6px;
     font-size: 10px;
     font-weight: 700;
-    color: var(--purple);
+    color: var(--blue);
     letter-spacing: 1.5px;
     text-transform: uppercase;
     animation: blink 1s ease infinite;

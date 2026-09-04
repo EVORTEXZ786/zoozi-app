@@ -16,11 +16,10 @@
     --text-dim: #8a879e;
     --gold: #facc15;
     --green: #22c55e;
-    --purple: #8b5cf6;
-    --teal: #2dd4bf;
-    --pink: #ec4899;
-    --avatar-bg: #4c1d95;
-    --border: rgba(139, 92, 246, 0.2);
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --avatar-bg: #1e3a5f;
+    --border: rgba(59, 130, 246, 0.2);
     --radius: 20px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,7 +43,7 @@
     position: absolute;
     top: -20%; left: -10%;
     width: 60%; height: 80%;
-    background: radial-gradient(ellipse, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    background: radial-gradient(ellipse, rgba(239, 68, 68, 0.12) 0%, transparent 70%);
     animation: drift1 20s ease-in-out infinite;
   }
   .space-bg::after {
@@ -52,7 +51,7 @@
     position: absolute;
     bottom: -10%; right: -5%;
     width: 50%; height: 70%;
-    background: radial-gradient(ellipse, rgba(45, 212, 191, 0.12) 0%, transparent 70%);
+    background: radial-gradient(ellipse, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
     animation: drift2 25s ease-in-out infinite;
   }
   @keyframes drift1 {
@@ -97,7 +96,7 @@
   .sidebar {
     width: 220px;
     background: var(--sidebar-bg);
-    border-right: 1px solid rgba(139, 92, 246, 0.1);
+    border-right: 1px solid rgba(59, 130, 246, 0.1);
     padding: 20px 14px;
     display: flex;
     flex-direction: column;
@@ -115,13 +114,13 @@
   .sidebar-logo .logo-circle {
     width: 32px; height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--purple), var(--teal));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: #fff;
-    font-weight: 800;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .sidebar-logo .logo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .sidebar-logo span {
     font-size: 16px;
@@ -156,16 +155,16 @@
     transition: all 0.2s;
     border: 1px solid transparent;
   }
-  .nav-item:hover { background: rgba(139, 92, 246, 0.08); color: var(--text); }
+  .nav-item:hover { background: rgba(59, 130, 246, 0.08); color: var(--text); }
   .nav-item.active {
-    background: rgba(139, 92, 246, 0.12);
+    background: rgba(59, 130, 246, 0.12);
     color: var(--text);
     border-color: var(--border);
   }
   .nav-item .nav-icon {
     width: 24px; height: 24px;
     border-radius: 8px;
-    background: rgba(139, 92, 246, 0.15);
+    background: rgba(59, 130, 246, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -195,9 +194,9 @@
     cursor: pointer;
     transition: all 0.15s;
   }
-  .nav-sub-item:hover { background: rgba(139, 92, 246, 0.08); color: var(--text); }
+  .nav-sub-item:hover { background: rgba(59, 130, 246, 0.08); color: var(--text); }
   .nav-sub-item .price {
-    color: var(--teal);
+    color: var(--red);
     font-weight: 700;
     font-size: 11px;
   }
@@ -208,7 +207,7 @@
     gap: 8px;
     padding: 12px;
     border-radius: 14px;
-    background: linear-gradient(135deg, var(--purple), #6366f1);
+    background: linear-gradient(135deg, var(--red), var(--blue));
     color: #fff;
     font-size: 13px;
     font-weight: 700;
@@ -217,7 +216,7 @@
     text-decoration: none;
     margin-top: auto;
   }
-  .sidebar-discord:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); transform: translateY(-1px); }
+  .sidebar-discord:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); transform: translateY(-1px); }
 
   /* ===== MAIN CONTENT ===== */
   .main {
@@ -261,7 +260,7 @@
     letter-spacing: 4px;
     line-height: 1.1;
     margin-bottom: 16px;
-    background: linear-gradient(135deg, #fff 30%, var(--purple) 60%, var(--teal));
+    background: linear-gradient(135deg, #fff 30%, var(--red) 60%, var(--blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -292,7 +291,7 @@
     text-decoration: none;
     transition: all 0.2s;
   }
-  .join-discord-top:hover { border-color: var(--purple); box-shadow: 0 0 12px rgba(139, 92, 246, 0.3); }
+  .join-discord-top:hover { border-color: var(--blue); box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
 
   /* ===== BOARD SHOWCASE ===== */
   .showcase {
@@ -304,33 +303,29 @@
     position: relative;
   }
   .showcase-logo {
-    width: 140px;
-    height: 140px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--purple), var(--teal));
-    display: flex;
-    align-items: center;
-    justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.3), 0 0 40px rgba(239, 68, 68, 0.2);
     position: relative;
+    overflow: hidden;
+  }
+  .showcase-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
   .showcase-logo::before {
     content: '';
     position: absolute;
     inset: -4px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--purple), var(--teal));
+    background: linear-gradient(135deg, var(--red), var(--blue));
     z-index: -1;
     opacity: 0.4;
     filter: blur(8px);
-  }
-  .showcase-logo-text {
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    color: #fff;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
   }
 
   /* Mini board (our overlay) */
@@ -339,7 +334,7 @@
     background: var(--card-bg);
     border-radius: var(--radius);
     padding: 20px 16px 14px;
-    box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
     border: 1px solid var(--border);
   }
   .mini-pills {
@@ -400,7 +395,7 @@
   }
   .mini-divider {
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--purple), var(--gold), var(--purple), transparent);
+    background: linear-gradient(90deg, transparent, var(--red), var(--gold), var(--blue), transparent);
     margin: 0 4px 12px;
     border-radius: 2px;
     box-shadow: 0 0 8px rgba(234, 179, 8, 0.3);
@@ -418,7 +413,7 @@
     padding: 8px 12px;
     background: var(--row-bg);
     border-radius: 50px;
-    border: 1px solid rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.08);
   }
   .mini-row.r1 {
     background: linear-gradient(90deg, rgba(250, 204, 21, 0.12) 0%, var(--row-bg) 50%);
@@ -481,7 +476,7 @@
     margin-bottom: 12px;
   }
   .section-title .highlight {
-    background: linear-gradient(135deg, var(--pink), var(--purple));
+    background: linear-gradient(135deg, var(--red), var(--blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -515,8 +510,8 @@
     overflow: hidden;
   }
   .pricing-card:hover {
-    border-color: var(--purple);
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+    border-color: var(--blue);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
     transform: translateY(-4px);
   }
   .pricing-card.featured {
@@ -568,7 +563,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.06);
   }
   .pricing-features li:last-child { border-bottom: none; }
   .pricing-features li .check { color: var(--green); font-size: 14px; }
@@ -586,16 +581,16 @@
     letter-spacing: 0.5px;
   }
   .pricing-btn.primary {
-    background: linear-gradient(135deg, var(--purple), #6366f1);
+    background: linear-gradient(135deg, var(--red), var(--blue));
     color: #fff;
   }
-  .pricing-btn.primary:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+  .pricing-btn.primary:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
   .pricing-btn.secondary {
-    background: rgba(139, 92, 246, 0.1);
+    background: rgba(59, 130, 246, 0.1);
     color: var(--text);
     border: 1px solid var(--border);
   }
-  .pricing-btn.secondary:hover { border-color: var(--purple); }
+  .pricing-btn.secondary:hover { border-color: var(--blue); }
 
   /* ===== FOOTER ===== */
   .footer {
@@ -603,7 +598,7 @@
     padding: 40px 0 30px;
     font-size: 12px;
     color: var(--text-dim);
-    border-top: 1px solid rgba(139, 92, 246, 0.08);
+    border-top: 1px solid rgba(59, 130, 246, 0.08);
     margin-top: 40px;
   }
 
@@ -626,7 +621,9 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-circle">&#9733;</div>
+      <div class="logo-circle">
+        <img src="/images/logo.jpg" alt="zoozi.app">
+      </div>
       <span>zoozi.app</span>
     </div>
     <div class="sidebar-label">+ Products</div>
@@ -683,7 +680,7 @@
     <!-- Board Showcase -->
     <section class="showcase">
       <div class="showcase-logo">
-        <span class="showcase-logo-text">zoozi</span>
+        <img src="/images/logo.jpg" alt="zoozi.app">
       </div>
       <div class="mini-board">
         <div class="mini-pills">
@@ -814,7 +811,7 @@ for (let i = 0; i < 12; i++) {
   s.style.animationDelay = (Math.random() * 6) + 's';
   s.style.animationDuration = (4 + Math.random() * 4) + 's';
   s.style.fontSize = (10 + Math.random() * 10) + 'px';
-  s.style.color = ['#facc15', '#8b5cf6', '#2dd4bf', '#ec4899'][Math.floor(Math.random() * 4)];
+  s.style.color = ['#facc15', '#ef4444', '#3b82f6', '#ec4899'][Math.floor(Math.random() * 4)];
   bg.appendChild(s);
 }
 </script>

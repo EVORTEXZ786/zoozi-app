@@ -11,11 +11,11 @@
     --pill: #1e1a33;
     --text: #ffffff;
     --dim: #8a879e;
-    --purple: #8b5cf6;
-    --green: #22c55e;
     --red: #ef4444;
+    --blue: #3b82f6;
+    --green: #22c55e;
     --gold: #facc15;
-    --border: rgba(139, 92, 246, 0.2);
+    --border: rgba(59, 130, 246, 0.2);
     --radius: 14px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,7 +45,7 @@
     font-size: 22px;
     font-weight: 800;
     margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--purple), var(--gold));
+    background: linear-gradient(135deg, var(--blue), var(--gold));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -62,13 +62,13 @@
     outline: none;
     margin-bottom: 16px;
   }
-  .login-card input:focus { border-color: var(--purple); }
+  .login-card input:focus { border-color: var(--blue); }
   .login-card button {
     width: 100%;
     padding: 12px;
     border-radius: 12px;
     border: none;
-    background: linear-gradient(135deg, var(--purple), #6366f1);
+    background: linear-gradient(135deg, var(--blue), #6366f1);
     color: #fff;
     font-size: 14px;
     font-weight: 700;
@@ -76,7 +76,7 @@
     font-family: inherit;
     transition: all 0.2s;
   }
-  .login-card button:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+  .login-card button:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
   .login-error {
     color: var(--red);
     font-size: 12px;
@@ -97,7 +97,7 @@
   .dash-header h2 {
     font-size: 18px;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--purple), var(--gold));
+    background: linear-gradient(135deg, var(--blue), var(--gold));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -122,7 +122,7 @@
     font-size: 14px;
     font-weight: 700;
     margin-bottom: 16px;
-    color: var(--purple);
+    color: var(--blue);
   }
   .gen-row {
     display: flex;
@@ -150,7 +150,7 @@
     font-family: inherit;
     outline: none;
   }
-  .gen-row input:focus, .gen-row select:focus { border-color: var(--purple); }
+  .gen-row input:focus, .gen-row select:focus { border-color: var(--blue); }
   .gen-btn {
     padding: 10px 24px;
     border-radius: 10px;
@@ -192,7 +192,7 @@
     font-size: 14px;
     font-weight: 700;
     margin-bottom: 16px;
-    color: var(--purple);
+    color: var(--blue);
   }
   .token-table {
     width: 100%;
@@ -211,7 +211,7 @@
   .token-table td {
     padding: 10px 12px;
     font-size: 13px;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.06);
     vertical-align: middle;
   }
   .token-table .token-mono {
@@ -231,7 +231,7 @@
     font-weight: 700;
     text-transform: uppercase;
   }
-  .type-badge.overlay { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+  .type-badge.overlay { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
   .type-badge.admin { background: rgba(250, 204, 21, 0.15); color: var(--gold); }
   .revoke-btn {
     padding: 5px 12px;
